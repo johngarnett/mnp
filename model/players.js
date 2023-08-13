@@ -79,9 +79,13 @@ function savePlayer(player) {
 }
 
 function cleanedName(rawName) {
-  var cleaned = rawName.replace(/[^a-zA-Z0-9 ]/g, '')
+  var cleaned = rawName.replace(/[&\/\\#,+()$~%":*?<>{}]/g, '')
   var truncated = cleaned.substring(0, 50);
   return truncated
+}
+
+function isBogusName(rawName) {
+  return rawName != cleanedName(rawName)
 }
 
 function sendVerify(params) {
@@ -89,9 +93,14 @@ function sendVerify(params) {
   var template = fs.readFileSync('./template/email_verify.html').toString();
 
   var url = params.url;
-  var name = cleanedName(params.name);
-  var to = params.email;
+  var nameUnclean = params.name.trim()
+  var name = cleanedName(nameUnclean);
+  var to = params.email.trim();
   var subject = params.subject || 'Confirm Email for Northend Street League Pinball';
+
+  if (isBogusName(nameUnclean)) {
+    return
+  }
 
   var message = mustache.render(template, {
     name: name,
