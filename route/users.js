@@ -124,11 +124,13 @@ router.get('/me',function(req,res) {
 
 router.get('/signup',function(req,res) {
   var template = fs.readFileSync('./template/signup.html').toString();
+  var question = players.getQuestion();
 
   var html = mustache.render(base,{
     title: 'Sign-Up',
     redirect_url: req.params.redirect_url,
-    venues: venues.current()
+    venues: venues.current(),
+    questionX: question
   },{
     content: template
   });
@@ -159,6 +161,8 @@ router.post('/signup',function(req,res) {
   players.signup({
     name: req.body.name,
     email: req.body.email,
+    answerX: req.body.answerX,
+    questionX: req.body.questionX,
     host: host
   } ,function(err,player) {
     if(err) {
