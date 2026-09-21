@@ -655,7 +655,7 @@ function renderMatch(params) {
 
       const getIPR = (arr, i) => {
         if(!arr[i]) return 0;
-        return arr[i].IPR || IPR.forName(arr[i].name) || 0;
+        return arr[i].IPR || IPR.forName(arr[i].name) || 1;
       };
 
       // TODO: Add team sums to pregame view
