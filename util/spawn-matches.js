@@ -1,37 +1,23 @@
 /**
-  This is intended to be run as part of the pre-week script.
-  In order to make it more cron friendly, it is necessary
-  to detect what season and week to generate.
+  Creates the match files for a week, so captains can start entering lineups.
 
-  The general logic is that this script should generate
-  the next matches, and probably only match the week if it
-  happens within 7 days of this script running.
+  Usage: node util/spawn-matches.js [week]
 
-  If the script runs on Sunday or Monday (or any day before), it
-  should still work.
-
-  The server runs on UTC, so match datetimes need to be
-  converted for proper comparison.
+  With a week number, creates that week's matches. Without one, picks the first
+  week whose match day hasn't reached 9pm yet in the league's time zone
+  (LEAGUE_TIME_ZONE), whatever time zone the server's clock uses. Matches that
+  already have a file are skipped, so it never overwrites.
 */
+const config = require('../config');
 const season = require('../model/seasons').get();
 const matches = require('../model/matches');
+const { findCurrentWeek } = require('../lib/league-time');
 const Match = matches.Match;
 
 const weekOverride = process.argv[2];
 
-const pad = (num) => {
-  return num < 10 ? `0${num}` : `${num}`;
-};
-
-const DAY_IN_MS = 1000 * 60 * 60 * 24;
-const MATCH_TIME = 1000 * 60 * 60 * 21; // 9pm
-
-const getOrder = (date) => {
-  return (date.getTime() + MATCH_TIME) / DAY_IN_MS;
-}
-
-const now = new Date();
-const time = now / DAY_IN_MS;
+// A week stays current until this hour on its match day.
+const MATCH_CUTOFF_HOUR = 21; // 9pm
 
 let current;
 
@@ -39,16 +25,14 @@ if (weekOverride) {
   current = season.weeks.find(week => week.n == weekOverride);
 } else {
   // TODO: Don't assume that weeks are already sorted.
-  current = season.weeks.find(week => {
-    const date = getOrder(new Date(week.date));
-    const diff = date - time;
-    console.log('week: ', week.n, date, week.date);
-    console.log('today:  ', time);
-    console.log('diff:  ', diff);
-    if (date >= time) {
-      return true;
-    }
-  });
+  current = findCurrentWeek(season.weeks, new Date(), config.LEAGUE_TIME_ZONE, MATCH_CUTOFF_HOUR);
+}
+
+if (!current) {
+  console.error(weekOverride ?
+    `No week ${weekOverride} in the season.` :
+    'No upcoming week in the season. Pass a week number to spawn a specific week.');
+  process.exit(1);
 }
 
 const { code, date } = current;
