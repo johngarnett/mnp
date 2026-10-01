@@ -340,6 +340,11 @@ console.log("POST Match Venue REMOVE",req.params,req.body);
   });
 });
 
+// Shown on the team page when a new substitute's name breaks the sign-up name rules.
+var INVALID_NAME_CODE = 'invalid_name';
+var INVALID_NAME_MESSAGE = 'Substitutes need a first and last name, without special ' +
+  'characters such as , & / < > ( ), and no more than 50 characters.';
+
 router.get('/matches/:match_id/:side',function(req,res) {
   console.log("GET " +req.params.side+ " team for " +req.params.match_id);
   var match = matches.get(req.params.match_id);
@@ -350,6 +355,10 @@ router.get('/matches/:match_id/:side',function(req,res) {
     match: match,
     redirect_url: '/matches/'+match.key+'/'+req.params.side
   };
+  if(req.query.error === INVALID_NAME_CODE) {
+    params.addError = INVALID_NAME_MESSAGE;
+    params.addName = req.query.name;
+  }
 
   if(req.params.side == 'home') {
     params.team = match.home;
@@ -425,6 +434,8 @@ console.log(['perms', perms])
     lineup: lineup,
     ready: match.state == CONST.PREGAME && team.ready,
     canAdd: perms.canEdit, //Add a canAdd perm to the perms object?
+    add_error: params.addError,
+    add_name: params.addName,
     canEdit: perms.canEdit,
     canRemove: perms.canRemove,
     // canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && team.lineup.length > 7,
@@ -494,7 +505,11 @@ router.post('/matches/:match_id/players/add',function(req,res) {
     }
     //Win or lose, redirect back and it will show what happened.
     var t = req.body.team ? '/' + req.body.team : '';
-    res.redirect('/matches/' +req.params.match_id+ t);
+    var query = '';
+    if(err === matches.INVALID_SUB_NAME) {
+      query = '?error=' + INVALID_NAME_CODE + '&name=' + encodeURIComponent(req.body.name);
+    }
+    res.redirect('/matches/' +req.params.match_id+ t + query);
   });
 });
 

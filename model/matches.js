@@ -16,6 +16,8 @@ var NUM_GAMES   = [2,5,5,2,1];
 var NUM_PLAYERS = [4,2,2,4,2];
 var NUM_SCORES  = [4,2,2,4,2];
 
+var INVALID_SUB_NAME = 'ERROR: Substitute name does not follow the sign-up name rules';
+
 function makeRounds(match) {
   var rounds = [
     makeRound(1),
@@ -385,6 +387,8 @@ Match.prototype = {
     }
 
     if(!p) p = players.getByName(name);
+    // Already in the match or has an account; new names must follow the sign-up rules.
+    var isKnownPlayer = !!p;
 
     if(!p) {
       //Person was not in the match, nor found by email or name.
@@ -423,6 +427,9 @@ Match.prototype = {
             isRoster = true;
           }
         }
+      }
+      if(!isRoster && !isKnownPlayer && !players.isValidName(name)) {
+        return callback(INVALID_SUB_NAME);
       }
       if(want_captain) {
         listAdd(team.captains,{
@@ -1267,6 +1274,7 @@ function get(key) {
 
 module.exports = {
   Match,
+  INVALID_SUB_NAME,
   //TODO: Should probably add callbacks to get and all.
   get: function(key) {
      return get(key);

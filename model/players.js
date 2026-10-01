@@ -109,6 +109,11 @@ function isBogusName(rawName) {
   return rawName != cleaned || !hasSpace
 }
 
+// Sign-up name rules: first and last name, no special characters, at most 50 characters.
+function isValidName(name) {
+  return !isBogusName(String(name || '').trim());
+}
+
 function sendVerify(params) {
   console.log("sendVerify()... ");
   var template = fs.readFileSync('./template/email_verify.html').toString();
@@ -350,5 +355,6 @@ module.exports = {
   },
   destroy: destroyPlayer,
   getQuestion: getQuestion,
-  getCorrectAnswer: getCorrectAnswer
+  getCorrectAnswer: getCorrectAnswer,
+  isValidName: isValidName
 };
