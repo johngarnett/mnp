@@ -30,26 +30,13 @@ function format(num) {
   return str;
 }
 
-// TODO: Stop using hardcoded season numbers.
-const rosters = fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/rosters.csv').toString()
-//.replace('\r', '')
-.split('\n')
-.filter(line => line.length > 0)
-.map(line => line.split(','))
-.map(row => {
-  // console.log('row:', row);
-  // TODO: Capitalize row[0]
-  const name = row[1].length > 0 ? row[1] : row[0];
-  return {
-    key: players.makeKey(name),
-    name,
-    team: row[2],
-    role: row[3]
-  };
-})
+// Player key -> roster name, from every team's roster in season.json. Used to name
+// players who have no account.
+const rosters = Object.values(teams)
+.flatMap(team => team.roster || [])
 .reduce((x, p) => {
-  // console.log('p:', p);
-  x[p.key] = p.name; // Or maybe also the team?
+  const name = p.name.trim();
+  x[players.makeKey(name)] = name;
   return x;
 }, {});
 

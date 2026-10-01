@@ -2,6 +2,8 @@
    Ported from mnp 7626759 (week 0 matches are excluded from player stats) and
    7e758fb (the player page lists history sorted by week). Runs util/compute-stats.js
    the way it is run in production, then checks the stats files and player page.
+   NESLP: players without an account are named from the season.json rosters (it
+   used to read rosters.csv in a different layout).
 */
 const { describe, it, before, after } = require('node:test')
 const assert = require('node:assert/strict')
@@ -11,13 +13,17 @@ const path = require('node:path')
 const request = require('supertest')
 const fixture = require('./helpers/fixture')
 
-const dataFolder = fixture.setup()
+const PLAYER_NAME = 'Stats Player'
+
+// The season roster spells the name properly; match lineups have it in lowercase.
+const dataFolder = fixture.setup({
+   season: { teams: { AWAY: { key: 'AWAY', name: 'Away Team', roster: [{ name: `${PLAYER_NAME} ` }] } } }
+})
 
 const matches = require('../model/matches')
 const players = require('../model/players')
 
 const HTTP_OK = 200
-const PLAYER_NAME = 'Stats Player'
 const OPPONENT_NAME = 'Stats Opponent'
 const PLAYER_KEY = players.makeKey(PLAYER_NAME)
 const OPPONENT_KEY = players.makeKey(OPPONENT_NAME)
@@ -36,7 +42,7 @@ function createPlayedMatch(week) {
       key: `slp-${SEASON_NUMBER}-${week}-AWAY-HOME`,
       week,
       venue: fixture.VENUE_KEY,
-      away: { key: 'AWAY', name: 'Away Team', roster: [{ name: PLAYER_NAME }] },
+      away: { key: 'AWAY', name: 'Away Team', roster: [{ name: PLAYER_NAME.toLowerCase() }] },
       home: { key: 'HOME', name: 'Home Team', roster: [{ name: OPPONENT_NAME }] }
    })
    const game = match.rounds[SINGLES_ROUND_INDEX].games[0]
@@ -68,7 +74,6 @@ describe('player stats by week', () => {
    let app
 
    before(() => {
-      fs.writeFileSync(path.join(dataFolder, fixture.TEST_SEASON, 'rosters.csv'), '')
       ;[PRESEASON_WEEK, ...LEAGUE_WEEKS].forEach(createPlayedMatch)
 
       const result = runComputeStats()
@@ -84,6 +89,10 @@ describe('player stats by week', () => {
       const weeks = readStats(PLAYER_KEY).history.map(item => item.week)
 
       assert.deepEqual([...weeks].sort(), [...LEAGUE_WEEKS].sort())
+   })
+
+   it('names a player without an account from the season roster', () => {
+      assert.equal(readStats(PLAYER_KEY).name, PLAYER_NAME)
    })
 
    it('player page lists history in week order', async () => {
