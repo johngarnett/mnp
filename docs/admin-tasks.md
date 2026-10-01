@@ -33,19 +33,21 @@ League admins are the player keys listed in `LEAGUE_ADMINS`.
 - **Edit the machine list** on the Machines page (codes are uppercase letters
   and digits).
 
+League admins can also visit `/matches/reload` to reload every match file
+from disk (see below).
+
 The special `ROOT` account (player key `6143`) can also create venues and
 create matches by hand.
 
-Two pages work for anyone, logged in or not:
-
-- `/rosters.csv` downloads the current season's rosters.
-- `/matches/reload` reloads every match file from disk (see below).
+Anyone, logged in or not, can download the current season's rosters from
+`/rosters.csv`.
 
 ## Applying edits to data files
 
 The server reads data files when it starts.
 
-- After editing **match files**, visit `/matches/reload` or restart the server.
+- After editing **match files**, visit `/matches/reload` while logged in as a
+  league admin, or restart the server.
 - After editing **anything else** (`player-name-aliases.json`, `venues.json`,
   `machines.json`, `season.json`, `IPR.csv`), restart the server.
 
