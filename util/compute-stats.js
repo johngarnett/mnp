@@ -56,8 +56,11 @@ const rosters = fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/rosters.c
 console.log('2');
 console.log(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches');
 
+// League matches in weeks 1-99; excludes week 0 (preseason) and scrimmages.
+const LEAGUE_MATCH_FILE = /slp-\d+-([1-9][0-9]|[1-9])-/
+
 const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
-.filter(fn => fn.match(/slp-\d+-\d+/)) // only SLP league matches
+.filter(fn => fn.match(LEAGUE_MATCH_FILE)) // only SLP league matches
 .map(fn => {
   // console.log(JSON.parse(fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches/' + fn)));
   return JSON.parse(fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches/' + fn));
