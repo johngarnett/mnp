@@ -398,6 +398,9 @@ function renderTeam(params) {
     return [a.name, b.name].sort()[0] === a.name ? -1 : 1;
   });
 
+// JWG
+console.log(['perms', perms])
+
   var html = mustache.render(base,{
     redirect_url: params.redirect_url || '/matches/' + match.key,
     title: params.label + ' Team',
@@ -424,7 +427,9 @@ function renderTeam(params) {
     canAdd: perms.canEdit, //Add a canAdd perm to the perms object?
     canEdit: perms.canEdit,
     canRemove: perms.canRemove,
-    canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && team.lineup.length > 7,
+    // canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && team.lineup.length > 7,
+    // JWG SLP - TODO parameterize min and max team size
+    canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && (team.lineup.length == 4 || team.lineup.length == 5),
     sugs: match.state == CONST.PREGAME ? JSON.stringify(getSuggestions([team.key]),null,2) : '[]'
   },{
     head: head,
@@ -557,11 +562,11 @@ const nameSort = function(a, b) {
 
 //Only need match and ukey for params. Optional: errors
 function renderMatch(params) {
-//console.log(params);
   var match = params.match;
   var ukey = params.ukey;
   var errors = params.errors;
   var state = match.state;
+
   params.round = params.round || match.round;
   if(params.round != match.round) {
     state = CONST.PLAYING;
@@ -573,12 +578,13 @@ function renderMatch(params) {
 
   console.log("renderMatch, requested round:",params.round,match.round,match.key,ukey,state,match.state);
 
+  match.truncateGamesIfNeeded(params.round); // JWG
+
   var round = match.getRound(params.round); // Defaults to match.round
-  //console.log("round:",round);
 
   //NOTE: We should get the games for the round requested.
   var games = round.games;
-  var num = games.length;
+  // var num = games.length;
   var venue = match.venue;
 
   var labels = labelsFor(match);
@@ -674,6 +680,7 @@ function renderMatch(params) {
   var right = order[1];
 
   var p = points.rounds[match.round-1] || points;
+  var isDoubles = (round.n % 3) == 1; // Rounds 1 and 4 are doubles; 2 and 3 are singles.
 
 //console.log("p: ",p);
 
@@ -696,8 +703,11 @@ function renderMatch(params) {
     step: match.step || 0,
     games: games,
     // singles: ????
-    doubles: (num == 4),
-    shared: round.n == 5, //ROUND, using again.
+    // doubles: (num == 4), // This gives the wrong answer if round 1 does not have 4 games.
+    // JWG SLP
+    doubles: isDoubles,
+    // shared: round.n == 5, //ROUND, using again. (tiebreaker)
+    shared: false, // JWG do not use funky tiebreaker rules with 4 players per single-player game.
     machines: JSON.stringify(venue.machines),
     referenceTime: match.state_at,
     lineup: JSON.stringify(lineup),
@@ -743,10 +753,12 @@ function renderMatch(params) {
 }
 
 //TODO These are redundant with matches.js
-var NUM_GAMES   = [4,7,7,4,3];
-var NUM_PLAYERS = [4,2,2,4,4];
+// var NUM_GAMES   = [4,7,7,4,3];
+// JWG SLP
+var NUM_GAMES   = [2,5,5,2,1];
+var NUM_PLAYERS = [4,2,2,4,2];
 var NUM_SCORES  = [4,2,2,4,2];
-var GAME_TYPES  = ['Doubles','Singles','Singles','Doubles','Shared Tie Breaker'];
+var GAME_TYPES  = ['Doubles','Singles','Singles','Doubles','Tie Breaker'];
 
 router.get('/games/:key.:round.:n',function(req,res) {
   console.log("GET /games ",req.params);
@@ -779,11 +791,14 @@ router.get('/games/:key.:round.:n',function(req,res) {
   var left  = order[0];
   var right = order[1];
 
+  // JWG comment out hack
   // This hack deals with a season 10 rule change.
+/* 
   if(match.round === 5) {
     left  = n > 1 ? match.away : match.home;
     right = n > 1 ? match.home : match.away;
   }
+*/
 
   //NOTE: left and right players are for if a game needs to be edited.
 
@@ -813,8 +828,9 @@ router.get('/games/:key.:round.:n',function(req,res) {
     week: match.week,
     round: round,
     n: game.n,
-    doubles: (NUM_SCORES[round-1] == 4),
-    shared: round == 5,
+    doubles: (NUM_PLAYERS[round-1] == 4),
+    // shared: round == 5,
+    shared: false,
     game: JSON.stringify(game),
     machines: JSON.stringify(venue.machines),
     left_players: JSON.stringify(left_players),

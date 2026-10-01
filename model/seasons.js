@@ -8,6 +8,7 @@ const CURRENT_SEASON = config.CURRENT_SEASON;
 function loadSeason(key) {
   var fn = DATA_FOLDER + '/' + key + '/season.json';
   var season;
+
   try {
     season = JSON.parse(fs.readFileSync(fn));
   } catch (err) {

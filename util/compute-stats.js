@@ -11,6 +11,8 @@ const CURRENT_SEASON = config.CURRENT_SEASON;
 
 const PA = [0, 2.5, 3, 3, 2.5, 0];
 
+console.log('1');
+
 //TODO: This function can be handled with Numeral on the client side.
 function format(num) {
   if(num == 0) return '0.000';
@@ -51,9 +53,13 @@ const rosters = fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/rosters.c
   return x;
 }, {});
 
+console.log('2');
+console.log(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches');
+
 const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
-.filter(fn => fn.match(/mnp-\d+-\d+/)) // only MNP league matches
+.filter(fn => fn.match(/slp-\d+-\d+/)) // only SLP league matches
 .map(fn => {
+  // console.log(JSON.parse(fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches/' + fn)));
   return JSON.parse(fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches/' + fn));
 })
 .reduce((stats, match) => {
@@ -68,10 +74,13 @@ const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
   // then we can fall back to something else.
   const division = teams[match.home.key] ? teams[match.home.key].division : 0;
 
+  console.log('div = ' + division);
+
   match.rounds.forEach(round => {
     if(round.n > 4) return;
     round.games.forEach(game => {
       const mk = game.machine;
+
       if(!machines.get(mk)) {
         console.log('WARNING, Unknown machine:', mk, '@', match.venue.key, 'in week', match.week, 'round', round.n, match.key);
       }
@@ -128,8 +137,14 @@ const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
   return stats;
 }, {});
 
+console.log('3');
+console.log(lookup);
+
 Object.keys(lookup).forEach(pk => {
   const player = lookup[pk];
+
+  // console.log('player');
+  // console.log(player);
 
   const historyToStats = (history) => history.reduce((tot, item) => {
     tot.won += item.points;
@@ -161,3 +176,5 @@ Object.keys(lookup).forEach(pk => {
 
   require('../model/stats').set(pk, player);
 });
+
+console.log('4');

@@ -10,16 +10,19 @@ const stem = DATA_FOLDER  + '/' + config.CURRENT_SEASON
 // TODO: Refactor in conjunction with splitting venues.js
 var venues = require('./venues');
 
-var NUM_GAMES   = [4,7,7,4,3];
-var NUM_PLAYERS = [4,2,2,4,4];
+// JWG SLP 
+var NUM_GAMES   = [2,5,5,2,1];
+// var NUM_GAMES   = [4,7,7,4,3];
+var NUM_PLAYERS = [4,2,2,4,2];
 var NUM_SCORES  = [4,2,2,4,2];
 
-function makeRounds() {
+function makeRounds(match) {
   var rounds = [
     makeRound(1),
     makeRound(2),
     makeRound(3),
-    makeRound(4)
+    makeRound(4),
+    makeRound(5)
   ];
   return rounds;
 }
@@ -31,6 +34,8 @@ function makeRound(n) {
   };
 
   var num = NUM_GAMES[n-1];
+
+  console.log('makeRound: round = ' + n + ', num = ' + num);
   for(var j = 0; j < num; j++) {
     round.games[j] = { n: j+1 };
     //TODO: Move roundDone here as round.isDone
@@ -57,7 +62,8 @@ function getMatch(key) {
 function loadMatch(key) {
   let filename = `${stem}/matches/${key}.json`;
   if(!util.fileExists(filename)) { return; }
-  console.log(filename);
+  console.log('filename = ' + filename);
+  console.log('stem = ' + `${stem}`);
 
   var json = JSON.parse(fs.readFileSync(filename));
   //How do we apply our prototype back to the loaded object.
@@ -153,6 +159,8 @@ function listRemove(list,key) {
 
 function isAuth(ukey,list) {
   if(ukey == CONST.ROOT) return true;
+  if (!!config.LEAGUE_ADMINS.find(k => k === ukey)) return true; // JWG
+
   for(i in list) {
     var p = list[i];
     if(p.key == ukey) {
@@ -189,6 +197,7 @@ Team.prototype = {
   /** Admins and captains can invite */
   hasCaptain: function(ukey) {
     var result = isAuth(ukey,this.captains);
+    console.log(config.LEAGUE_ADMINS);
     return result;
   },
   getPermissions: function(ukey) {
@@ -209,8 +218,12 @@ Team.prototype = {
       if(n >= 3) count++;
     }
     //TODO: Bonus points depend on the season's rules.
+/*
     if(count == 10) return 9;
     if(count ==  9) return 4; // Season 6+7 was 5 for 9
+*/
+    // JWG SLP
+    if ((count == 5) && !this.illegalSubstitution) return 5;
     return 0;
   },
 };
@@ -261,7 +274,8 @@ function Match(params) {
 
   this.away = new Team(params.away || { name: "Away Team" });
   this.home = new Team(params.home || { name: "Home Team" });
-  this.rounds = makeRounds();
+  this.rounds = makeRounds(this);
+  console.log(this.rounds);
   this.players = [];
 }
 
@@ -406,7 +420,8 @@ Match.prototype = {
       listAdd(team.lineup,{
         key: p.key,
         name: p.name,
-        sub: isLeague ? !isRoster : false,
+        // sub: isLeague ? !isRoster : false, // JWG - doesn't hurt to show (SUB) even in non-league games.
+        sub: !isRoster,
         IPR: IPR.forName(p.name),
       });
       team.ready = false;
@@ -522,6 +537,7 @@ Match.prototype = {
     if(round == 2) return [this.home, this.away];
     if(round == 3) return [this.away, this.home];
     if(round == 4) return [this.home, this.away];
+    if(round == 5) return [this.away, this.home];
   },
   getPickingTeam: function(round) {
     var order = this.getOrder(round);
@@ -535,6 +551,25 @@ Match.prototype = {
       if(this.step % 2 == 1) return this.home;
       if(this.step == 2) return this.away;
     }
+  },
+  truncateGamesIfNeeded: function(r) {
+     // JWG
+     // Reduce the number of games in the round if there are not enough players.
+     // This is used in street league since # of players can be 4 or 5.
+     // If both teams have 5 players, then the singles rounds have 5 games; otherwise, they have 4 games.
+
+     console.log('truncateGamesIfNeeded: ' + this.state);
+     if (this.state == CONST.PICKING) {
+        var length = (this.away.lineup.length < this.home.lineup.length) ? this.away.lineup.length : this.home.lineup.length;
+        var round = this.getRound(r);
+        var games = round.games;
+
+        console.log('shortest: ' + length);
+        if (length < games.length) {
+           round.games.splice(length);
+           console.log('splicing, length = ' + round.games.length);
+        }
+     }
   },
   // ------------------ MAKE PICKS -------------------------
   makePicks: function(params,callback) {
@@ -727,29 +762,35 @@ Match.prototype = {
   },
   // ----------------- GET POINTS --------------------------
   //TODO: Consider rename getPoints -> getBoxscore
-  // TODO: The only way that coundGames() is called is through getPoints. That seems kind of whack.
+  // TODO: The only way that countGames() is called is through getPoints. That seems kind of whack.
   getPoints: function() {
     countGames(this);
     var points = { home: 0, away: 0, rounds: [] };
-    for(var r = 0; r < 4; r++) {
+
+    for(var r = 0; r < 5; r++) {
       var round = this.rounds[r];
+
       points.rounds[r] = { n: r+1, home: 0, away: 0 };
       for(var i = 0; i < round.games.length; i++) {
         var g = round.games[i];
-        points.home += g.home_points || 0;
-        points.away += g.away_points || 0;
+        if (r < 4) {
+           points.home += g.home_points || 0;
+           points.away += g.away_points || 0;
+        }
         points.rounds[r].home += g.home_points || 0;
         points.rounds[r].away += g.away_points || 0;
       }
     }
     var hb = this.home.getBonusPoints();
     var ab = this.away.getBonusPoints();
+
     points.bonus = {
       home: hb,
       away: ab
     };
     points.home += hb;
     points.away += ab;
+
     return points;
   },
   canReport: function(params) {
@@ -958,14 +999,24 @@ Match.prototype = {
       return callback("ERROR: Round is not ready to be confirmed.");
     }
     if(round.left_confirmed && round.right_confirmed) {
-      //console.log("Round has been mutually confirmed!");
+      console.log("Round has been mutually confirmed!");
 
-      if(this.round < 4) {
+      if (this.round < 4) {
         this.round++;
-        this.state = CONST.PICKING;
-      }
-      else {
-        this.state = CONST.COMPLETE;
+        this.setState(CONST.PICKING);
+      } else if (this.round == 4) {
+        var points = this.getPoints();
+
+        if (points.home != points.away) {
+           this.setState(CONST.COMPLETE);
+        } else {
+           console.log('After round 4, points are equal');
+           console.log(points);
+           this.round++;
+           this.setState(CONST.PICKING);
+        }
+      } else {
+        this.setState(CONST.COMPLETE);
       }
     };
     this.save();
@@ -981,18 +1032,21 @@ Match.prototype = {
     var round = this.getRound();
     if(this.round == 4) {
       if(round.done) {
-        return true;
+        // return true;
+        return points.home != points.away; // JWG - tiebreaker needed only if points are equal
       }
       else {
         console.log("!round.done")
         return false; //Finish round 4
       }
     }
+    // JWG TODO: allow tiebreaker round to be enabled via config.
     // Soon this will be an assert condition, but consuming old matches can result in round 5 (which we will now ignore)
-    if ( this.round > 4 ) {
-      console.log("this.round > 4");
-      return true;//We don't support round 5 any more.  So assume 'done'
-    }
+    // if ( this.round > 4 ) {
+    //   console.log("this.round > 4");
+    //   return true;//We don't support round 5 any more.  So assume 'done'
+    // }
+    return round.done;
   },
   save: function() {
     var json = JSON.stringify(this,null,2);
@@ -1032,7 +1086,7 @@ function calcPoints(game, round) {
     game.home_points = (round == 1 ?
         game.points_24 : game.points_13);
   }
-  else if(round == 2 || round == 3) {
+  else if(round == 2 || round == 3 || round == 5) {
     //Singles
     var points = calcSingles([
       game.score_1,
