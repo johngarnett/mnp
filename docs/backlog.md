@@ -21,9 +21,11 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Scoring
 
-- [ ] **Manual point adjust** (`3605131`, `fc34983`) — per-match point
-  adjustment for forfeits and suspended matches; a negative adjustment is taken
-  from the bonus first.
+- [x] **Manual point adjust** (`3605131`, `fc34983`) — an admin adds
+  `point_adjust` to a match file for forfeits and suspended matches; a negative
+  adjustment comes out of the bonus first when the bonus covers it. NESLP
+  treats a missing value as 0 and skips mnp's round 5 scoring change (NESLP
+  scores round 5 as a singles tiebreaker). See `docs/admin-tasks.md`.
 
 ## Accounts and security
 
