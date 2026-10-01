@@ -59,19 +59,20 @@ change gets a test in `tests/` (see `docs/testing.md`).
   `DATA_FOLDER/<season>/stats` instead of `DATA_FOLDER/stats`. NESLP also
   creates the folder when missing. Production needs `util/compute-stats.js`
   rerun (or `data/stats/*` moved into the season folder) after deploying.
-- [ ] **Season export tools** (`bcf0c95`, `da8d658`) — admin scripts, run by
-  hand. Deferred.
-  - `importers/export-season.js` writes each team's current roster to
-    `exported-rosters.csv` as `name,team,role` (C/A/P), the same format as
-    `rosters.csv`. Purpose: capture end-of-season rosters, after in-season
-    changes, as the starting point for next season's setup.
-  - `importers/export-season-matches.js` writes one row per match with each
-    team's sub count, sub IPR, roster IPR, total IPR, points, bonus, and round 4
-    points. Purpose: mnp added it with its handicap (Aug 2025) to judge whether
-    the handicap was fair. Only useful to NESLP as a general results export.
-  - Porting notes: the season argument only changes the output folder, not the
-    season read (set `CURRENT_SEASON` from it before loading models); the match
-    export uses mnp's handicap bonus fields and crashes on missing matches.
+- [x] **Roster export** (`bcf0c95`) — `importers/export-season.js` writes each
+  team's current roster to `<season>/exported-rosters.csv` as `name,team,role`
+  (C/A/P), the same format as `rosters.csv`. Purpose: capture end-of-season
+  rosters, after in-season changes, as the starting point for next season's
+  setup. NESLP fixes: the season argument now selects the season read (mnp only
+  changed the output folder), and a missing season is reported instead of
+  crashing.
+- [ ] **Match results export** (`da8d658`) — admin script, run by hand. Deferred.
+  `importers/export-season-matches.js` writes one row per match with each team's
+  sub count, sub IPR, roster IPR, total IPR, points, bonus, and round 4 points.
+  Purpose: mnp added it with its handicap (Aug 2025) to judge whether the
+  handicap was fair. Only useful to NESLP as a general results export. Porting
+  notes: it uses mnp's handicap bonus fields, crashes on missing matches, and has
+  the same season-argument problem the roster export had.
 - [ ] **CSV and report scripts** (`ab513c9`, `3126412`, `9a75eab`) — admin
   scripts, run by hand. Deferred.
   - `util/create_players_csv.js` lists every player account (name, key, signup
