@@ -4,7 +4,7 @@ const config = {
   CREDENTIALS_FOLDER: process.env.CREDENTIALS_FOLDER ||  __dirname + '/credentials',
   DATA_FOLDER: process.env.DATA_FOLDER || __dirname + '/data',
   UPLOADS_FOLDER: process.env.UPLOADS_FOLDER || __dirname + '/data/uploads',
-  CURRENT_SEASON: process.env.CURRENT_SEASON || 'season-14',
+  CURRENT_SEASON: process.env.CURRENT_SEASON || 'season-0',
   NUM_WEEKS: process.env.NUM_WEEKS || 11,
   CREDENTIALS_FOLDER: process.env.CREDENTIALS_FOLDER || './credentials',
   IFPA_API_KEY: process.env.IFPA_API_KEY,
