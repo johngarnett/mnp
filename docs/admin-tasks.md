@@ -139,9 +139,10 @@ run them without fixing them first.
 
 - `importers/import-season.js` (builds `season.json` from CSVs): creates match
   keys like `mnp-undefined-1-AWAY-HOME`, because it expects season folders
-  named like `season-13`. NESLP's keys look like `slp-1-1-VENUE-AWAY-HOME`.
-  Running it would overwrite `season.json` and orphan every existing match. The
-  README's instructions for it are also outdated.
+  named like `season-13`. NESLP's keys look like `slp-1-1-VENUE-HOME-AWAY`.
+  Running it would overwrite `season.json` and orphan every existing match.
+  NESLP's `season.json` is built with `tools/genseason.js`, which lives outside
+  this repository.
 - `util/gen-week.js`: older week generator; crashes on an undefined `SEASON`.
   Use `spawn-matches.js`.
 - `util/correct-player-names.js`: renames accounts from a CSV but doesn't move
