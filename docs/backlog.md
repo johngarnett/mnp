@@ -33,8 +33,10 @@ change gets a test in `tests/` (see `docs/testing.md`).
   the PIN is the date as YYMMDD in `LEAGUE_TIME_ZONE` (default
   America/Los_Angeles) instead of the server's clock, and a rejected sign-up
   shows one generic error with the entered name and email kept.
-- [ ] **Player key remapping** (`275f3a3`) — `lib/make-key.js` can map a
-  player's name to an existing key so a renamed player keeps their key.
+- [x] **Player key remapping** (`275f3a3`) — a renamed player keeps their key
+  through a name alias. NESLP reads aliases from the optional
+  `DATA_FOLDER/player-name-aliases.json` (`{ "New Name": "Old Name" }`, restart
+  after editing) instead of mnp's table in `lib/make-key.js`.
 
 ## Navigation and pages
 
