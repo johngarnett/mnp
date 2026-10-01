@@ -13,6 +13,7 @@ console.log("INIT MNP...");
 
 // CONSTANTS AND LIBS
 var CONST = require('../constants');
+const { isAdmin } = require('../lib/admins');
 var util = require('../lib/util');
 var ids = require('../lib/ids');
 
@@ -119,15 +120,16 @@ router.get('/matches/create',function(req,res) {
   sendCreate(res);
 });
 
-router.get('/matches/reload',function(req,res) {
-  matches.reload();
+// Reloads every match file from disk, e.g. after an admin edits one. Admins only.
+function reloadMatches(req,res) {
+  if(isAdmin(req.user.key)) {
+    matches.reload();
+  }
   res.redirect('/matches/');
-});
+}
 
-router.get('/matches/spawn',function(req,res) {
-  matches.reload();
-  res.redirect('/matches/');
-});
+router.get('/matches/reload', reloadMatches);
+router.get('/matches/spawn', reloadMatches);
 
 router.post('/matches/create',function(req,res) {
   console.log("POST /matches/create",req.body);
