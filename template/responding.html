@@ -60,10 +60,13 @@ for(k in lineup) {
   var npl = np > 0 ? '(' +np+ ') ' : '';
   players.push({
     value: lineup[k].key,
-    label: npl + lineup[k].name
+    label: npl + lineup[k].name,
+    name: lineup[k].name,
+    played: np || 0
   });
 }
-players.sort((a,b) => (a.label > b.label) ? 1 : ((b.label > a.label) ? -1 : 0));
+// Fewest games played first, so captains can spread games around; then by name.
+players.sort((a,b) => (a.played - b.played) || ((a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)));
 machines.sort((a,b) => (labels[a] > labels[b]) ? 1 : ((labels[b] > labels[a]) ? -1 : 0));
 
 //Need to render games.
