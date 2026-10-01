@@ -11,10 +11,10 @@ change gets a test in `tests/` (see `docs/testing.md`).
 - [x] **Picking resubmit error** (`2f0a369`) — check for errors properly when
   picking so refreshing the page after responding to picks doesn't trigger a
   form-resubmit error.
-- [ ] **IPR display fixes** (`bdd0fd7`, `62236ff`, `c90dd9f`) — fix NaN player
-  IPR, treat unknown players as IPR 1, fix team IPR on the team view, and fix
-  0-IPR pregame players. Separate these from the handicap code they were mixed
-  with.
+- [x] **IPR display fixes** (`62236ff`, `c90dd9f`, team-rating line of
+  `7e52dbb`) — unknown players show a green "1" badge and count as IPR 1 in team
+  totals on the team, match team, and pregame pages. `bdd0fd7` was skipped: it
+  only fixes handicap functions that NESLP doesn't have.
 - [ ] **Player stats sort and week 0** (`7e758fb`, `7626759`) — sort player
   stats by week correctly and exclude week 0 from stats.
 
