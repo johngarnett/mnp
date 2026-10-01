@@ -85,7 +85,9 @@ router.post('/forgotpass',function(req,res) {
   console.log('POST forgotpass')
   req.body.timestamp = Date.now();
 
-  var host = req.protocol + '://' +req.hostname;
+  // var host = req.protocol + '://' +req.hostname;
+  var host = req.protocol + '://northend.seattle.streetleaguepinball.com'; // JWG CHANGE
+
   players.forgotpass({
     username: req.body.username,
     host: host
@@ -150,7 +152,10 @@ router.post('/signup',function(req,res) {
 
   fs.writeFileSync(DATA_FOLDER + '/signups/' + reason + '/' + key + '.json', json);
 
-  var host = req.protocol + '://' +req.hostname;
+  // var host = req.protocol + '://' +req.hostname;
+  // FIX for Street League - John Garnett - JWG
+  var host = 'https://northend.seattle.streetleaguepinball.com';
+
   players.signup({
     name: req.body.name,
     email: req.body.email,

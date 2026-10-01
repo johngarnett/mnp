@@ -85,7 +85,7 @@ function sendVerify(params) {
   var url = params.url;
   var name = params.name;
   var to = params.email;
-  var subject = params.subject || 'MNP - Confirm Email';
+  var subject = params.subject || 'Confirm Email for Northend Street League Pinball';
 
   var message = mustache.render(template, {
     name: name,
@@ -111,7 +111,7 @@ function sendForgotPass(params) {
   var url = params.url;
   var name = params.name;
   var to = params.email;
-  var subject = params.subject || 'MNP - Reset Password';
+  var subject = params.subject || 'Reset Password for Northend Street League Pinball';
 
   var message = mustache.render(template, {
     name: name,
