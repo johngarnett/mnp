@@ -7,7 +7,7 @@ NESLP diverged at mnp commit `2fc20d5` (2021-12-09). Bring changes in with
 
 ## Bug fixes
 
-- [ ] **Picking resubmit error** (`2f0a369`) — check for errors properly when
+- [x] **Picking resubmit error** (`2f0a369`) — check for errors properly when
   picking so refreshing the page after responding to picks doesn't trigger a
   form-resubmit error.
 - [ ] **IPR display fixes** (`bdd0fd7`, `62236ff`, `c90dd9f`) — fix NaN player
