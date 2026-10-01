@@ -27,7 +27,6 @@ const EMPTY_FILES = ['.shadows', '.tokens']
 
 let dataFolder = null
 let sessionCount = 0
-const sentEmails = []
 
 function writeJson(file, value) {
    fs.writeFileSync(file, JSON.stringify(value, null, 2))
@@ -68,7 +67,7 @@ function setup(options = {}) {
    process.env.LEAGUE_ADMINS = ADMIN_KEY
 
    createPlayer({ key: ADMIN_KEY, name: ADMIN_NAME })
-   stubEmail()
+   require('./stub-email')
 
    if (!process.env[VERBOSE_ENV]) {
       console.log = () => {}
@@ -79,23 +78,6 @@ function setup(options = {}) {
       throw new Error(`Refusing to run: DATA_FOLDER is ${config.DATA_FOLDER}, expected ${dataFolder}`)
    }
    return dataFolder
-}
-
-// Replaces lib/email in the require cache so no SMTP connection is made and
-// tests can inspect outgoing messages through sentEmails.
-function stubEmail() {
-   const emailPath = require.resolve('../../lib/email')
-
-   require.cache[emailPath] = {
-      id: emailPath,
-      filename: emailPath,
-      loaded: true,
-      exports: {
-         send: (to, subject, message, htmlMessage) => {
-            sentEmails.push({ to, subject, message, htmlMessage })
-         }
-      }
-   }
 }
 
 function createPlayer({ key, name, email = `${key}@example.com` }) {
@@ -139,7 +121,8 @@ module.exports = {
    TEST_SEASON,
    VENUE_KEY,
    VENUE_MACHINES,
-   sentEmails,
+   sentEmails: require('./stub-email').sentEmails,
+   STUB_EMAIL_PRELOAD: require.resolve('./stub-email'),
    setup,
    createPlayer,
    login,

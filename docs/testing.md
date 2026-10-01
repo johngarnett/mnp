@@ -42,6 +42,9 @@ Helpers:
 - `fixture.ADMIN_KEY` is a player who is a league admin (can act as captain).
 - `fixture.sentEmails` collects messages; `lib/email` is stubbed so no mail is
   sent.
+- `fixture.STUB_EMAIL_PRELOAD` is the stub's path, for running app scripts as
+  child processes without email: `node --require <path> util/compute-stats.js`
+  with `env: process.env` (see `tests/player-stats.test.js`).
 
 ## Ported changes
 
