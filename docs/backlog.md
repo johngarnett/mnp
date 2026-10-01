@@ -27,10 +27,12 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Accounts and security
 
-- [ ] **Signup hardening** (`9ca73ac`, `5b0433e`, `e49b8c0`, `f5ba033`) — block
-  .ru/.de emails, limit username length, sanitize names (allowing accents and
-  some symbols), don't create accounts for bogus names, and add a challenge
-  question to the signup form.
+- [x] **Signup hardening** (`9ca73ac`, `5b0433e`, `e49b8c0`, `f5ba033`) — block
+  .ru/.de emails, require a first and last name without special characters (up
+  to 50 characters), and require a daily PIN from the captain. NESLP changes:
+  the PIN is the date as YYMMDD in `LEAGUE_TIME_ZONE` (default
+  America/Los_Angeles) instead of the server's clock, and a rejected sign-up
+  shows one generic error with the entered name and email kept.
 - [ ] **Player key remapping** (`275f3a3`) — `lib/make-key.js` can map a
   player's name to an existing key so a renamed player keeps their key.
 
