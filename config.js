@@ -6,6 +6,7 @@ const config = {
   UPLOADS_FOLDER: process.env.UPLOADS_FOLDER || __dirname + '/data/uploads',
   CURRENT_SEASON: process.env.CURRENT_SEASON || 'season-0',
   NUM_WEEKS: process.env.NUM_WEEKS || 11,
+  LEAGUE_TIME_ZONE: process.env.LEAGUE_TIME_ZONE || 'America/Los_Angeles',
   CREDENTIALS_FOLDER: process.env.CREDENTIALS_FOLDER || './credentials',
   IFPA_API_KEY: process.env.IFPA_API_KEY,
   EMAIL_HOST: process.env.EMAIL_HOST,

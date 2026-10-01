@@ -7,19 +7,24 @@ var util = require('../lib/util');
 var Auth = require('../lib/auth');
 const makeKey = require('../lib/make-key');
 const DATA_FOLDER = require('../config').DATA_FOLDER;
+const LEAGUE_TIME_ZONE = require('../config').LEAGUE_TIME_ZONE;
 var _map = {};
 
 function getQuestion() {
   return "Please enter the PIN code (obtained from your captain)"
 }
 
-function getCorrectAnswer() {
-  var date = new Date();
-  var dayOfMonth = date.getDate();
-  var year = date.getFullYear() % 100;
-  var month = date.getMonth() + 1; // return 0 for January
-  const zeroPad = (num, places) => String(num).padStart(places, '0')
-  return year.toString() + zeroPad(month,2) + zeroPad(dayOfMonth,2);
+// The PIN is the date in the league's time zone as YYMMDD, so it changes at local
+// midnight rather than at midnight on the server's clock (often UTC).
+function getCorrectAnswer(now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: LEAGUE_TIME_ZONE,
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now);
+  const part = type => parts.find(p => p.type === type).value;
+  return part('year') + part('month') + part('day');
 }
 
 
@@ -222,8 +227,7 @@ module.exports = {
   signup: function(params,callback) {
     var name = params.name;
     var email = params.email;
-    var answerX = params.answerX;
-    var dayOfMonth = new Date().getDate();
+    var answerX = String(params.answerX || '').trim();
     var answerCorrect = getCorrectAnswer();
     if(!util.isEmail(email)) { return callback("ERROR: Invalid Email address. \"" +params.email+ "\""); }
 
@@ -345,5 +349,6 @@ module.exports = {
     callback(null,player);
   },
   destroy: destroyPlayer,
-  getQuestion: getQuestion
+  getQuestion: getQuestion,
+  getCorrectAnswer: getCorrectAnswer
 };
