@@ -55,9 +55,10 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Data and tools
 
-- [ ] **Per-season stats folder** (`35327e8`) — store player stats under
-  `DATA_FOLDER/<season>/stats` instead of `DATA_FOLDER/stats`. Requires moving
-  or recomputing existing stats files and updating `setupMNPFolders.sh`.
+- [x] **Per-season stats folder** (`35327e8`) — store player stats under
+  `DATA_FOLDER/<season>/stats` instead of `DATA_FOLDER/stats`. NESLP also
+  creates the folder when missing. Production needs `util/compute-stats.js`
+  rerun (or `data/stats/*` moved into the season folder) after deploying.
 - [ ] **Season export tools** (`bcf0c95`, `da8d658`) — `importers/export-season.js`
   and `importers/export-season-matches.js` write rosters and match results to
   CSV. Strip out the handicap columns.
