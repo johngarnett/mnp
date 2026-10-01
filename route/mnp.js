@@ -498,6 +498,25 @@ router.post('/matches/:match_id/players/add',function(req,res) {
   });
 });
 
+router.get('/mymatch', function(req,res) {
+  var ukey = req.user.key || 'ANON';
+  var match = matches.uget(ukey);
+
+  if(!match) { return res.redirect('/matches'); }
+
+  var round = req.query.round || match.round;
+
+  if (round > match.round) {
+     return res.redirect('/matches/' + req.params.match_id);
+  }
+
+  res.send(renderMatch({
+    match: match,
+    ukey: ukey,
+    round: round
+  }));
+});
+
 router.get('/matches/:match_id',function(req,res) {
   //TODO: matches.get should be async to account for mongo.
   var match = matches.get(req.params.match_id);

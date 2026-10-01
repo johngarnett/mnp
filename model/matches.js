@@ -45,6 +45,7 @@ function makeRound(n) {
 }
 
 var _map = {};
+var _dir = {};
 
 function getMatch(key) {
   var match = _map[key];
@@ -75,7 +76,28 @@ function loadMatch(key) {
   //Copy the rest of the match, but don't re-overwrite the away and home teams.
   util.copy(json, match, ['home','away']);
 
+  populateDir(json);
+
   return match;
+}
+
+function populateDir(json) {
+   var key = json.key;
+   var home = json.home.lineup;
+   var away = json.away.lineup;
+
+   for (var i = 0; i < home.length; i++) {
+      var ukey = home[i].key;
+
+      _dir[ukey] = key;
+      console.log(['populateDir: home', ukey, key]);
+   }
+   for (var j = 0; j < away.length; j++) {
+      var vkey = away[j].key;
+
+      _dir[vkey] = key;
+      console.log(['populateDir: away', vkey, key]);
+   }
 }
 
 //TODO: This never really got used. Probably remove at some point.
@@ -1229,20 +1251,34 @@ function gameDone(game, r) {
 
 loadAll();
 
-module.exports = {
-  Match,
-  //TODO: Should probably add callbacks to get and all.
-  get: function(key) {
-    var match = _map[key];
-    if(!match) {
+function get(key) {
+   var match = _map[key];
+
+   if(!match) {
       //Let's try to load.
       match = loadMatch(key);
       if(match) {
         //Cache the match for faster access.
         _map[key] = match;
       }
-    }
-    return match;
+   }
+   return match;
+}
+
+module.exports = {
+  Match,
+  //TODO: Should probably add callbacks to get and all.
+  get: function(key) {
+     return get(key);
+  },
+  uget: function(ukey) {
+     var key = _dir[ukey];
+
+     if (key === undefined) {
+        return undefined;
+     } else {
+        return get(key);
+     }
   },
   all: function() {
     var list = [];
