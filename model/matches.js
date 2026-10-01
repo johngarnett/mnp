@@ -812,6 +812,14 @@ Match.prototype = {
     }
     var hb = this.home.getBonusPoints();
     var ab = this.away.getBonusPoints();
+    if(this.point_adjust != null) {
+      var home = applyPointAdjust(this.point_adjust.home_points, hb);
+      var away = applyPointAdjust(this.point_adjust.away_points, ab);
+      hb = home.bonus;
+      ab = away.bonus;
+      points.home += home.points;
+      points.away += away.points;
+    }
 
     points.bonus = {
       home: hb,
@@ -1182,6 +1190,19 @@ function calcShared(scores) {
   else                      points[1] = 0.333; //1/3;
 
   return points;
+}
+
+// Manual point adjustment for forfeits and suspended matches (mnp 3605131,
+// fc34983). An admin adds it to the match file, then restarts the server:
+//   "point_adjust": { "home_points": 0, "away_points": -2 }
+// A negative adjustment comes out of the team's bonus when the bonus covers it,
+// otherwise out of its points. A missing value counts as 0.
+function applyPointAdjust(adjust, bonus) {
+  var amount = Number(adjust) || 0;
+  if(amount < 0 && amount + bonus >= 0) {
+    return { bonus: bonus + amount, points: 0 };
+  }
+  return { bonus: bonus, points: amount };
 }
 
 function countGames(match) {
