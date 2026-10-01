@@ -384,7 +384,7 @@ function renderTeam(params) {
     var p = team.lineup[i];
     const rating = p.IPR || IPR.forName(p.name.trim()) || 0;
     // TODO: Handle cases where rating == undefined, instead of default to 0.
-    teamRating += parseInt(rating);
+    teamRating += Math.max(1, parseInt(rating));
 
     lineup.push({
       key: p.key,
