@@ -169,9 +169,13 @@ TODO: Add more details/resources on how to setup the certificate.
 
 See [docs/admin-tasks.md](docs/admin-tasks.md) for admin abilities on the site and the scripts that are supported for NESLP.
 
-### Importing a season
+### Building a season
 
-`importers/import-season.js` parses the season CSV files and writes `season.json` itself; don't redirect its output, which is only log text. It still generates MNP-style match keys, so it is not supported for NESLP yet (see docs/admin-tasks.md).
+`importers/genseason.js` builds `season.json` from tab-separated venue, week, team, player, and schedule files. See [docs/admin-tasks.md](docs/admin-tasks.md#season-files) for the file formats.
+
+```
+node importers/genseason.js <season number> --input <folder> --output data/<season>/season.json
+```
 
 ### Generating a week of matches
 

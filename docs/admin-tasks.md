@@ -128,21 +128,38 @@ Other account tools:
 
 ## Season files
 
-- **Export end-of-season rosters:** `node importers/export-season.js [season]`
-  writes `<season>/exported-rosters.csv` as `name,team,role` (C captain,
-  A co-captain, P player), the format `rosters.csv` uses.
+- **Build `season.json`:** `node importers/genseason.js <season number> --input
+  <folder> [--output <file>]` reads tab-separated files with header rows from
+  the input folder:
+
+  | File | Columns |
+  |---|---|
+  | `venues.csv` | key, name, ... |
+  | `weeks.csv` | key (week number), date (MM/DD/YYYY) |
+  | `teams.csv` | key, name, venue, group (optional), division |
+  | `players.csv` | team, name, captain (TRUE/FALSE), co-captain (TRUE/FALSE) |
+  | `schedule.csv` | week, venue, home, away, playoffs (TRUE/FALSE) |
+  | `groups.csv` | key, name (optional; otherwise "target" becomes "Target") |
+
+  Match keys are `slp-<season>-<week>-<venue>-<home>-<away>`. Use `BYE` as a
+  team for a bye week. Every team needs a group (the team page needs one);
+  teams with no group in `teams.csv` go in `target`. Without `--output` it
+  prints the JSON. If
+  any team, venue, or week key is unknown, it lists every problem and writes
+  nothing.
+
+  **Regenerating mid-season overwrites roster changes made on the team pages.**
+  Export the rosters first (below) and use that file as `players.csv`.
+- **Export current rosters:** `node importers/export-season.js [season]`
+  writes `<season>/exported-players.csv` in the `players.csv` format above,
+  including roster changes made on the team pages. Use it as the starting point
+  for next season's `players.csv`.
 
 ## Unsupported
 
 These came from Monday Night Pinball and don't work for NESLP as they are. Don't
 run them without fixing them first.
 
-- `importers/import-season.js` (builds `season.json` from CSVs): creates match
-  keys like `mnp-undefined-1-AWAY-HOME`, because it expects season folders
-  named like `season-13`. NESLP's keys look like `slp-1-1-VENUE-HOME-AWAY`.
-  Running it would overwrite `season.json` and orphan every existing match.
-  NESLP's `season.json` is built with `tools/genseason.js`, which lives outside
-  this repository.
 - `util/gen-week.js`: older week generator; crashes on an undefined `SEASON`.
   Use `spawn-matches.js`.
 - `util/correct-player-names.js`: renames accounts from a CSV but doesn't move
