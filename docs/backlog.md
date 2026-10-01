@@ -98,7 +98,9 @@ change gets a test in `tests/` (see `docs/testing.md`).
     `DATA_FOLDER`), write to MNP-style `season-N` folders (NESLP's are `9`), and
     need `jq`, plus `pv` and Miller (`mlr`), which aren't installed here.
     `create_posts_csv.sh` creates its season folders with a grep that misses the
-    log's pretty-printed JSON. `find -regex` with `+` fails on macOS.
+    log's pretty-printed JSON. It also reads away/home from mnp's
+    `mnp-<season>-<week>-<away>-<home>` keys; NESLP's keys are
+    `slp-<season>-<week>-<venue>-<home>-<away>`. `find -regex` with `+` fails on macOS.
 - [x] **Signup folder** (`2b69837`) — save signups to `signups/account/` rather
   than a folder named after the submitted signup reason, which let a form post
   write files anywhere. The reason stays in the record.
