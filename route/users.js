@@ -149,6 +149,15 @@ router.get('/signup',function(req,res) {
   renderSignup(res, { redirect_url: req.params.redirect_url });
 });
 
+function saveSignup(body) {
+  var json = JSON.stringify(body, null, 2);
+  var key = util.digest(json);
+
+  const reason = body.signup_reason || 'default';
+
+  fs.writeFileSync(DATA_FOLDER + '/signups/' + reason + '/' + key + '.json', json);
+}
+
 router.post('/signup',function(req,res) {
 
   req.body.timestamp = Date.now();
@@ -156,13 +165,6 @@ router.post('/signup',function(req,res) {
   if(!req.body.name || req.body.name.trim().length === 0) {
     return renderSignup(res, { error: SIGNUP_ERROR, email: req.body.email });
   }
-
-  var json = JSON.stringify(req.body, null, 2);
-  var key = util.digest(json);
-
-  const reason = req.body.signup_reason || 'default';
-
-  fs.writeFileSync(DATA_FOLDER + '/signups/' + reason + '/' + key + '.json', json);
 
   // var host = req.protocol + '://' +req.hostname;
   // FIX for Street League - John Garnett - JWG
@@ -183,6 +185,9 @@ router.post('/signup',function(req,res) {
         email: req.body.email
       });
     }
+
+    // Save only accepted sign-ups, so rejected bot submissions aren't stored.
+    saveSignup(req.body);
 
     var template = fs.readFileSync('./template/thanks.html').toString();
     var html = mustache.render(base, {

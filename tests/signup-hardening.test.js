@@ -34,6 +34,16 @@ function playerExists(name) {
    return fs.existsSync(path.join(dataFolder, 'players', players.makeKey(name)))
 }
 
+// Saved sign-up records (data/signups/<reason>/*.json) for an email address.
+function savedSignupsFor(email) {
+   const signupsFolder = path.join(dataFolder, 'signups')
+
+   return fs.readdirSync(signupsFolder, { recursive: true })
+      .filter(file => file.endsWith('.json'))
+      .map(file => JSON.parse(fs.readFileSync(path.join(signupsFolder, file))))
+      .filter(record => record.email === email)
+}
+
 function emailsTo(address) {
    return fixture.sentEmails.filter(e => e.to === address)
 }
@@ -62,6 +72,7 @@ describe('POST /signup', () => {
       assert.match(res.text, new RegExp(ERROR_TEXT))
       assert.doesNotMatch(res.text, new RegExp(THANKS_TEXT))
       assert.equal(emailsTo(email).length, 0)
+      assert.equal(savedSignupsFor(email).length, 0)
       if (name) assert.equal(playerExists(name), false)
    }
 
@@ -74,6 +85,7 @@ describe('POST /signup', () => {
       assert.match(res.text, new RegExp(THANKS_TEXT))
       assert.equal(playerExists(name), true)
       assert.equal(emailsTo(email).length, 1)
+      assert.equal(savedSignupsFor(email).length, 1)
    })
 
    it('accepts a PIN with surrounding spaces', async t => {
