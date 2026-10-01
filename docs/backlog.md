@@ -38,8 +38,9 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 - [ ] **Admin editing of machines** (`9be307d`) — allow league admins to edit
   the machines page.
-- [ ] **Sorted pick lists** (`f9ba89d`) — sort machines and players in the
-  picking and responding dropdowns.
+- [x] **Sorted pick lists** (`f9ba89d`) — sort machines by name and players in
+  the picking and responding dropdowns. NESLP sorts players by fewest games
+  played, then name (mnp put players who had played first).
 - [ ] **External announcements** (`8d4c38f`, `76ddca1`) — load home-page
   announcements from `ANNOUNCEMENTS_TEMPLATE_URL` instead of editing
   `template/index.html`.
