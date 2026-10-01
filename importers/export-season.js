@@ -1,13 +1,13 @@
 /*
-   Writes each team's current roster to <DATA_FOLDER>/<season>/exported-players.csv
-   in the players.csv format read by importers/genseason.js (tab-separated):
-      team, name, captain (TRUE/FALSE), co-captain (TRUE/FALSE)
+   Writes each team's current roster to <DATA_FOLDER>/<season>/exported-rosters.csv
+   in the rosters.csv format read by importers/import-season.js:
+      name,team key,role   (role: C captain, A co-captain, P player)
    Rosters change during a season (on the team pages), so this captures them as a
-   starting point for the next season's players.csv.
+   starting point for the next season's rosters.csv.
 
    Usage: node importers/export-season.js [season]   (default: CURRENT_SEASON)
 
-   Adapted from mnp bcf0c95, which wrote mnp's rosters.csv format.
+   Adapted from mnp bcf0c95.
 */
 const fs = require('fs')
 const path = require('path')
@@ -20,25 +20,24 @@ if (process.argv[2]) {
 const config = require('../config')
 const seasons = require('../model/seasons')
 
-const OUTPUT_FILE = 'exported-players.csv'
-const HEADER = ['team', 'name', 'captain', 'co-captain']
-
-function flag(value) {
-   return value ? 'TRUE' : 'FALSE'
-}
+const OUTPUT_FILE = 'exported-rosters.csv'
+const CAPTAIN = 'C'
+const CO_CAPTAIN = 'A'
+const PLAYER = 'P'
 
 function sameName(a, b) {
    return !!a && !!b && a.trim() === b.trim()
 }
 
+function roleFor(team, name) {
+   if (sameName(name, team.captain)) return CAPTAIN
+   if (sameName(name, team.co_captain)) return CO_CAPTAIN
+   return PLAYER
+}
+
 function rosterRows(season) {
    return Object.entries(season.teams).flatMap(([teamKey, team]) =>
-      (team.roster || []).map(player => [
-         teamKey,
-         player.name.trim(),
-         flag(sameName(player.name, team.captain)),
-         flag(sameName(player.name, team.co_captain))
-      ].join('\t'))
+      (team.roster || []).map(player => [player.name.trim(), teamKey, roleFor(team, player.name)].join(','))
    )
 }
 
@@ -52,5 +51,5 @@ if (!season) {
 const outputPath = path.join(config.DATA_FOLDER, config.CURRENT_SEASON, OUTPUT_FILE)
 const rows = rosterRows(season)
 
-fs.writeFileSync(outputPath, [HEADER.join('\t'), ...rows].map(row => row + '\n').join(''))
+fs.writeFileSync(outputPath, rows.map(row => row + '\n').join(''))
 console.log(`Wrote ${rows.length} players to ${outputPath}`)
