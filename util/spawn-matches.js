@@ -53,7 +53,7 @@ if (weekOverride) {
 
 const { code, date } = current;
 
-console.log('spawing', current);
+console.log('spawning', current);
 
 current.matches
   // Filter to only matches not already created. Safety against overwrite.
