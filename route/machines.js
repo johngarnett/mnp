@@ -9,14 +9,24 @@ var machines = require('../model/machines');
 
 var base = fs.readFileSync('./template/base.html').toString();
 
+// Machine codes are uppercase letters and digits; template/machines.html applies
+// the same rule as the admin types.
+var MACHINE_KEY_MAX_LENGTH = 20;
+
+function canEditMachines(ukey) {
+  return CONST.ROOT == ukey || config.LEAGUE_ADMINS.includes(ukey);
+}
+
+function normalizeMachineKey(raw) {
+  return String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, MACHINE_KEY_MAX_LENGTH);
+}
+
 router.get('/machines',function(req,res) {
   var template = fs.readFileSync('./template/machines.html').toString();
   var ukey = req.user.key || 'ANON';
 
-  let isLeagueAdmin = !!config.LEAGUE_ADMINS.find(k => k === ukey);
-  
-  var canAdd = (CONST.ROOT == ukey || isLeagueAdmin);
-  var canRemove = (CONST.ROOT == ukey || isLeagueAdmin);
+  var canAdd = canEditMachines(ukey);
+  var canRemove = canEditMachines(ukey);
   var list = machines.all();
 
   console.log('# machines:',list.length);
@@ -43,13 +53,15 @@ router.get('/machines',function(req,res) {
 
 router.post('/machines',function(req,res) {
   var ukey = req.user.key;
-  if(CONST.ROOT == ukey) {
+  var key = normalizeMachineKey(req.body.mkey);
+  var name = String(req.body.name || '').trim();
+  if (canEditMachines(ukey) && key && name) {
     machines.add({
-      key: req.body.mkey,
-      name: req.body.name
+      key: key,
+      name: name
     });
 
-    var check = machines.get(req.body.mkey);
+    var check = machines.get(key);
     console.log('check:',check);
   }
 
@@ -58,7 +70,7 @@ router.post('/machines',function(req,res) {
 
 router.post('/machines/:machine_key/remove',function(req,res) {
   var ukey = req.user.key;
-  if(CONST.ROOT == ukey) {
+  if (canEditMachines(ukey)) {
     machines.remove({
       key: req.body.mkey
     });
