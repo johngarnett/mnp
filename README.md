@@ -167,13 +167,11 @@ TODO: Add more details/resources on how to setup the certificate.
 
 ## League Operation
 
+See [docs/admin-tasks.md](docs/admin-tasks.md) for admin abilities on the site and the scripts that are supported for NESLP.
+
 ### Importing a season
 
-Once you have all the season files above setup, you need to run the script that parses all the CSV files and generates a `season.json` (currently written to standard out, so I send that to a file on the command line).
-
-```
-node importers/import-season > data/season-{n}/season.json
-```
+`importers/import-season.js` parses the season CSV files and writes `season.json` itself; don't redirect its output, which is only log text. It still generates MNP-style match keys, so it is not supported for NESLP yet (see docs/admin-tasks.md).
 
 ### Generating a week of matches
 
@@ -188,7 +186,7 @@ This is one of the areas of the site that could be very much improved once we mo
 Eventually stats would likely be real time, but for now we run a script to generate player stats.
 
 ```
-node run util/compute-stats
+node util/compute-stats.js
 ```
 
 ### Starting the server
