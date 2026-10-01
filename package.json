@@ -4,7 +4,7 @@
   "description": "Live scoring for Monday Night Pinball.",
   "main": "app.js",
   "directories": {
-    "test": "test"
+    "test": "tests"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -19,9 +19,11 @@
     "nodemailer": "^6.6.3",
     "superagent": "^3.6.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "supertest": "^7.3.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "author": "gsimons",
   "license": "GPL"

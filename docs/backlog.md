@@ -3,7 +3,8 @@
 Candidate changes to port from the MNP repo (remote `mnp`, `../mnp`) made since
 NESLP diverged at mnp commit `2fc20d5` (2021-12-09). Bring changes in with
 `git cherry-pick <hash>` or by hand; expect conflicts in `model/matches.js` and
-`route/mnp.js` because of the Street League match-format changes.
+`route/mnp.js` because of the Street League match-format changes. Each ported
+change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Bug fixes
 
