@@ -34,6 +34,8 @@ process and gets its own fixture; call `fixture.cleanup()` in an `after` hook.
 
 Helpers:
 
+- `fixture.setup({ ratings, season })` optionally adds `{ name, ipr }` rows to
+  `IPR.csv` and merges fields (`teams`, `groups`, `weeks`) into `season.json`.
 - `fixture.createApp()` returns an Express app using `route/main`.
 - `fixture.login(playerKey)` writes a session and returns a `Cookie` header.
 - `fixture.createPlayer({ key, name })` adds a player file.

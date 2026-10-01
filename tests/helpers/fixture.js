@@ -16,6 +16,7 @@ const TEMP_PREFIX = 'neslp-test-'
 const TEST_SEASON = 'season-test'
 const ADMIN_KEY = 'test-admin'
 const ADMIN_NAME = 'Test Admin'
+const ADMIN_IPR = 3
 const COOKIE_NAME = 'mnp_sess'
 const VENUE_KEY = 'TESTV'
 const VENUE_MACHINES = ['TAF', 'MM', 'AFM']
@@ -32,7 +33,9 @@ function writeJson(file, value) {
    fs.writeFileSync(file, JSON.stringify(value, null, 2))
 }
 
-function setup() {
+// options.ratings: [{ name, ipr }] added to IPR.csv
+// options.season: fields merged over the default season.json (teams, groups, weeks)
+function setup(options = {}) {
    if (dataFolder) return dataFolder
    if (process.cwd() !== PROJECT_ROOT) {
       throw new Error(`Tests must run from ${PROJECT_ROOT} because templates are read with relative paths`)
@@ -43,7 +46,8 @@ function setup() {
    EMPTY_FILES.forEach(file => fs.writeFileSync(path.join(dataFolder, file), ''))
    fs.mkdirSync(path.join(dataFolder, TEST_SEASON, 'matches'), { recursive: true })
 
-   fs.writeFileSync(path.join(dataFolder, 'IPR.csv'), `3,${ADMIN_NAME}\n`)
+   const ratings = [{ name: ADMIN_NAME, ipr: ADMIN_IPR }, ...(options.ratings || [])]
+   fs.writeFileSync(path.join(dataFolder, 'IPR.csv'), ratings.map(r => `${r.ipr},${r.name}\n`).join(''))
    writeJson(path.join(dataFolder, 'machines.json'), Object.fromEntries(
       VENUE_MACHINES.map(key => [key, { key, name: key }])
    ))
@@ -53,7 +57,9 @@ function setup() {
    writeJson(path.join(dataFolder, TEST_SEASON, 'season.json'), {
       key: TEST_SEASON,
       teams: {},
-      weeks: []
+      groups: {},
+      weeks: [],
+      ...options.season
    })
 
    // dotenv does not override variables that are already set, so these win over .env.
