@@ -122,20 +122,31 @@ router.get('/me',function(req,res) {
   res.send('Hello ' +player.name+ '<br>Key:' +player.key+ '<br>Code:' +util.digest(player.email));
 });
 
-router.get('/signup',function(req,res) {
+// One message for every rejected sign-up, so bots can't tell which check failed.
+var SIGNUP_ERROR = 'Sign-up failed. Check the PIN code from your captain, enter your ' +
+  'full name (first and last, without special characters), and use a valid email address.';
+
+function renderSignup(res, params) {
   var template = fs.readFileSync('./template/signup.html').toString();
   var question = players.getQuestion();
 
   var html = mustache.render(base,{
     title: 'Sign-Up',
-    redirect_url: req.params.redirect_url,
+    redirect_url: params.redirect_url,
     venues: venues.current(),
-    questionX: question
+    questionX: question,
+    error: params.error,
+    name: params.name,
+    email: params.email
   },{
     content: template
   });
 
   res.send(html);
+}
+
+router.get('/signup',function(req,res) {
+  renderSignup(res, { redirect_url: req.params.redirect_url });
 });
 
 router.post('/signup',function(req,res) {
@@ -143,8 +154,7 @@ router.post('/signup',function(req,res) {
   req.body.timestamp = Date.now();
 
   if(!req.body.name || req.body.name.trim().length === 0) {
-    // TODO: Include error on redirect.
-    return res.redirect('/signup');
+    return renderSignup(res, { error: SIGNUP_ERROR, email: req.body.email });
   }
 
   var json = JSON.stringify(req.body, null, 2);
@@ -166,9 +176,12 @@ router.post('/signup',function(req,res) {
     host: host
   } ,function(err,player) {
     if(err) {
-      //TODO: This should render error message to the user.
       console.log(err);
-      return res.redirect('/signup');
+      return renderSignup(res, {
+        error: SIGNUP_ERROR,
+        name: req.body.name,
+        email: req.body.email
+      });
     }
 
     var template = fs.readFileSync('./template/thanks.html').toString();
