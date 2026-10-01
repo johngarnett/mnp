@@ -34,13 +34,22 @@ function playerExists(name) {
    return fs.existsSync(path.join(dataFolder, 'players', players.makeKey(name)))
 }
 
-// Saved sign-up records (data/signups/<reason>/*.json) for an email address.
+// Saved sign-up records anywhere under data/signups for an email address.
 function savedSignupsFor(email) {
    const signupsFolder = path.join(dataFolder, 'signups')
 
    return fs.readdirSync(signupsFolder, { recursive: true })
       .filter(file => file.endsWith('.json'))
       .map(file => JSON.parse(fs.readFileSync(path.join(signupsFolder, file))))
+      .filter(record => record.email === email)
+}
+
+// Saved sign-up records in data/signups/account for an email address.
+function accountSignupsFor(email) {
+   const accountFolder = path.join(dataFolder, 'signups', 'account')
+
+   return fs.readdirSync(accountFolder)
+      .map(file => JSON.parse(fs.readFileSync(path.join(accountFolder, file))))
       .filter(record => record.email === email)
 }
 
@@ -142,6 +151,27 @@ describe('POST /signup', () => {
          assertRejected(res, name, email)
       })
    }
+
+   it('saves every sign-up in signups/account and keeps the reason in the record', async t => {
+      const email = uniqueEmail()
+
+      await signup(t, { name: 'Looking Player', email, signup_reason: 'looking' })
+
+      const records = accountSignupsFor(email)
+      assert.equal(records.length, 1)
+      assert.equal(records[0].signup_reason, 'looking')
+   })
+
+   it('does not use signup_reason as a folder, so it cannot write outside signups', async t => {
+      const email = uniqueEmail()
+      const playersFolder = path.join(dataFolder, 'players')
+
+      // Before mnp 2b69837, this wrote the record into data/players as a bogus player.
+      await signup(t, { name: 'Path Player', email, signup_reason: '../players' })
+
+      assert.equal(accountSignupsFor(email).length, 1)
+      assert.deepEqual(fs.readdirSync(playersFolder).filter(f => f.endsWith('.json')), [])
+   })
 
    it('escapes the redisplayed name', async t => {
       const res = await signup(t, { name: 'Bob <script>x</script>', email: uniqueEmail() })

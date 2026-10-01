@@ -29,11 +29,7 @@ const MACHINE_NAMES = {
 const VENUE_MACHINES = Object.keys(MACHINE_NAMES)
 const VERBOSE_ENV = 'TEST_VERBOSE'
 
-// signups/<reason> folders match the signup form's signup_reason values plus the route's default.
-const DATA_DIRS = [
-   'ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads',
-   'signups/account', 'signups/looking', 'signups/default'
-]
+const DATA_DIRS = ['ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads', 'signups/account']
 const EMPTY_FILES = ['.shadows', '.tokens']
 
 let dataFolder = null
