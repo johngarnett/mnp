@@ -35,6 +35,14 @@ if(players.getByName(toName)) {
   process.exit();
 }
 
+// A name alias (player-name-aliases.json) can give the new name the same key. Moving
+// the account would then save it and delete the same file, losing the account.
+if(makeKey(toName) === oldPlayer.key) {
+  console.log(toName, 'has the same key as', fromName, '(see player-name-aliases.json).');
+  console.log('Nothing to move. To change the displayed name, edit "name" in data/players/' + oldPlayer.key);
+  process.exit(1);
+}
+
 const newPlayer = Object.assign({}, oldPlayer, {
   key: makeKey(toName),
   name: toName
