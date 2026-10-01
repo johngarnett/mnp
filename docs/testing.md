@@ -48,3 +48,26 @@ Helpers:
 Every change ported from mnp (see `docs/backlog.md`) gets a test in `tests/`
 named after the change. Confirm the test fails on the code before the port and
 passes after it.
+
+## Browser tests (Playwright)
+
+Page-level changes also get a Playwright test in `tests/e2e/*.spec.js`, run at
+phone (Pixel 7), tablet (Galaxy Tab S4), and desktop (Desktop Chrome) sizes.
+
+```sh
+npx playwright install chromium   # once, to download the browser
+npm run test:e2e                  # run all browser tests
+npx playwright test --project=phone   # one screen size
+npx playwright show-report        # view results and screenshots
+```
+
+`playwright.config.js` starts `tests/e2e/ipr-server.js`, which seeds a temporary
+data folder with the same fixture and scenario helpers as the unit tests and
+serves the app on port 6943. It refuses to reuse a server that is already
+running, so browser tests never touch real league data, and it stops the
+server with SIGTERM so the temporary folder is deleted. Scenario data shared
+between unit and browser tests lives in `tests/helpers/` (for example
+`ipr-scenario.js`).
+
+When more browser tests are added, give each scenario its own server script
+and `webServer` entry, or combine scenarios in one seeded server.

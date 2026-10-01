@@ -17,3 +17,7 @@ restart
 
 # Private scanned license documents
 static/mb/
+
+# Playwright output
+test-results/
+playwright-report/
