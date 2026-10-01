@@ -69,12 +69,12 @@ The adjusted totals are used everywhere points appear, including standings.
 ## Each week
 
 - **Create the week's match files:** `node util/spawn-matches.js [week]`. With
-  a week number, it creates that week's matches. Without one, it picks the
-  first week whose match day hasn't passed 9 pm **on the server's clock**. On a
-  UTC server that cutoff is 2 pm Pacific (1 pm in winter), so on match day it
-  moves on to next week early; pass the week number to be safe. Matches that
-  already have a file are skipped, so it never overwrites. Lineups come from the
-  season rosters, captains from the season's captain and co-captain.
+  a week number, it creates that week's matches. Without one, it picks the first
+  week whose match day hasn't reached 9 pm in the league's time zone
+  (`LEAGUE_TIME_ZONE`, default America/Los_Angeles), whatever zone the server's
+  clock uses. Matches that already have a file are skipped, so it never
+  overwrites. Lineups come from the season rosters, captains from the season's
+  captain and co-captain.
 - **Keep venue machine lists current:** `node util/find-unknown-machines.js
   [week]` lists machines used in that week's matches that aren't on the venue's
   list (read-only). `node util/update-venues.js [week]` adds them to
