@@ -15,8 +15,9 @@ change gets a test in `tests/` (see `docs/testing.md`).
   `7e52dbb`) — unknown players show a green "1" badge and count as IPR 1 in team
   totals on the team, match team, and pregame pages. `bdd0fd7` was skipped: it
   only fixes handicap functions that NESLP doesn't have.
-- [ ] **Player stats sort and week 0** (`7e758fb`, `7626759`) — sort player
-  stats by week correctly and exclude week 0 from stats.
+- [x] **Player stats sort and week 0** (`7e758fb`, `7626759`) — sort player
+  stats by week correctly and exclude week 0 from stats. The week 0 filter
+  was adapted to `slp-` match keys.
 
 ## Scoring
 
