@@ -65,8 +65,9 @@ change gets a test in `tests/` (see `docs/testing.md`).
   `util/create_players_csv.js`, `util/create_posts_csv.sh`,
   `util/create_season_players_csv.sh`, and `util/team-ipr-avg.sh`. Update
   `mnp-` match-key patterns to `slp-`.
-- [ ] **Signup folder** (`2b69837`) — save signups to `signups/account/` rather
-  than a folder named after the signup reason.
+- [x] **Signup folder** (`2b69837`) — save signups to `signups/account/` rather
+  than a folder named after the submitted signup reason, which let a form post
+  write files anywhere. The reason stays in the record.
 
 ## Last
 
