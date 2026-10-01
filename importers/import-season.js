@@ -100,11 +100,11 @@ codes['S'] = 'SCRM';
 
 /*
  * rosters.csv is a list of players in the form
- * Alexa Philbeck,TWC,C
- * Algird Lisaius,SWL,P
- * Alicia Seftel,LLK,A
- * Allison McClure,SJK,P
- * Altwin Hawksford,PGN,P
+ * Ann Able,RED,C
+ * Bo Baker,RED,P
+ * Cy Cole,RED,A
+ * Di Dunn,BLU,P
+ * Ed Ely,BLU,C
  * 
  * Column 0 is the player name, column 1 is the team key,
  * column 2 is the enum {C - captain, A - assistant, P - player}
