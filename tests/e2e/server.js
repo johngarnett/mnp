@@ -8,7 +8,8 @@ const fixture = require('../helpers/fixture')
 const SCENARIOS = [
    require('../helpers/ipr-scenario'),
    require('../helpers/pick-lists-scenario'),
-   require('../helpers/sub-names-scenario')
+   require('../helpers/sub-names-scenario'),
+   require('../helpers/machines-scenario')
 ]
 const DEFAULT_PORT = 6943
 const port = Number(process.env.E2E_PORT) || DEFAULT_PORT
