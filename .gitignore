@@ -10,3 +10,10 @@ temp
 # Basically data. Should probably be moved under data anyways.
 results/
 static/match_summary
+
+# Contain credentials
+start
+restart
+
+# Private scanned license documents
+static/mb/
