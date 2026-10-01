@@ -14,9 +14,9 @@
             "program": "${workspaceFolder}/app.js"
         },
         {
-            "name": "Generate season.json (genseason)",
-            "program": "${workspaceFolder}/importers/genseason.js",
-            "args": ["1", "--input", "${workspaceFolder}/../tools"],
+            "name": "Launch Import Current Season",
+            "program": "${workspaceFolder}/importers/import-season.js",
+            "args": ["9", "--number", "1"],
             "request": "launch",
             "skipFiles": [
                 "<node_internals>/**"
