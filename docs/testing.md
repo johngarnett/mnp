@@ -37,8 +37,11 @@ Helpers:
 - `fixture.setup({ ratings, season })` optionally adds `{ name, ipr }` rows to
   `IPR.csv` and merges fields (`teams`, `groups`, `weeks`) into `season.json`.
 - `fixture.createApp()` returns an Express app using `route/main`.
-- `fixture.login(playerKey)` writes a session and returns a `Cookie` header.
+- `fixture.login(playerKey, sessionId?)` writes a session and returns a `Cookie`
+  header. Pass `sessionId` when the value must be known in advance.
 - `fixture.createPlayer({ key, name })` adds a player file.
+- `fixture.VENUE_MACHINES` / `fixture.MACHINE_NAMES`: the test venue's machines,
+  whose venue, key, and name orders all differ.
 - `fixture.ADMIN_KEY` is a player who is a league admin (can act as captain).
 - `fixture.sentEmails` collects messages; `lib/email` is stubbed so no mail is
   sent.
@@ -64,13 +67,17 @@ npx playwright test --project=phone   # one screen size
 npx playwright show-report        # view results and screenshots
 ```
 
-`playwright.config.js` starts `tests/e2e/ipr-server.js`, which seeds a temporary
-data folder with the same fixture and scenario helpers as the unit tests and
-serves the app on port 6943. It refuses to reuse a server that is already
-running, so browser tests never touch real league data, and it stops the
-server with SIGTERM so the temporary folder is deleted. Scenario data shared
-between unit and browser tests lives in `tests/helpers/` (for example
-`ipr-scenario.js`).
+`playwright.config.js` starts `tests/e2e/server.js`, which seeds one temporary
+data folder with every scenario in its `SCENARIOS` list and serves the app on
+port 6943. It refuses to reuse a server that is already running, so browser
+tests never touch real league data, and it stops the server with SIGTERM so the
+temporary folder is deleted.
 
-When more browser tests are added, give each scenario its own server script
-and `webServer` entry, or combine scenarios in one seeded server.
+Scenario data shared between unit and browser tests lives in
+`tests/helpers/*-scenario.js`. A scenario exports `options` (passed to
+`fixture.setup()`; the e2e server merges them) and `seed()` (creates matches and
+sessions after setup). Scenarios must use distinct match keys. To add a browser
+test, write a scenario, add it to `SCENARIOS`, and write a spec. For pages that
+need a logged-in captain, the scenario calls `fixture.login(ADMIN_KEY, SESSION_ID)`
+with a fixed ID, and the spec adds a `fixture.COOKIE_NAME` cookie with that
+value (see `tests/e2e/pick-lists.spec.js`).

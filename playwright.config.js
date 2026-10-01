@@ -19,7 +19,7 @@ module.exports = defineConfig({
       { name: 'desktop', use: { ...devices['Desktop Chrome'] } }
    ],
    webServer: {
-      command: 'node tests/e2e/ipr-server.js',
+      command: 'node tests/e2e/server.js',
       url: `${BASE_URL}/teams/AWAY`,
       env: { E2E_PORT: String(E2E_PORT) },
       // Never attach to an already-running server: it could be using real league data.

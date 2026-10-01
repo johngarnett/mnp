@@ -24,18 +24,17 @@ function makeTeam(key) {
    }
 }
 
-function setup() {
-   fixture.setup({
-      ratings: [{ name: RATED_NAME, ipr: RATED_IPR }],
-      season: {
-         teams: { [TEAM_KEY]: makeTeam(TEAM_KEY), [OPPONENT_KEY]: makeTeam(OPPONENT_KEY) },
-         groups: { test: { key: 'test', name: 'Test', teams: [TEAM_KEY, OPPONENT_KEY] } }
-      }
-   })
+// Options for fixture.setup().
+const options = {
+   ratings: [{ name: RATED_NAME, ipr: RATED_IPR }],
+   season: {
+      teams: { [TEAM_KEY]: makeTeam(TEAM_KEY), [OPPONENT_KEY]: makeTeam(OPPONENT_KEY) },
+      groups: { test: { key: 'test', name: 'Test', teams: [TEAM_KEY, OPPONENT_KEY] } }
+   }
 }
 
-// Must be called after setup(), since it loads app modules.
-function createPregameMatch() {
+// Must be called after fixture.setup(), since it loads app modules.
+function seed() {
    const CONST = require('../../constants')
    const matches = require('../../model/matches')
    const season = require('../../model/seasons').get()
@@ -60,6 +59,6 @@ module.exports = {
    ROSTER_SIZE,
    TEAM_KEY,
    MATCH_KEY,
-   setup,
-   createPregameMatch
+   options,
+   seed
 }

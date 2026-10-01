@@ -9,7 +9,7 @@ const request = require('supertest')
 const fixture = require('./helpers/fixture')
 const scenario = require('./helpers/ipr-scenario')
 
-scenario.setup()
+fixture.setup(scenario.options)
 
 const HTTP_OK = 200
 
@@ -18,7 +18,7 @@ describe('players without an IPR count as IPR 1', () => {
    let cookie
 
    before(() => {
-      scenario.createPregameMatch()
+      scenario.seed()
       app = fixture.createApp()
       cookie = fixture.login(fixture.ADMIN_KEY)
    })

@@ -19,7 +19,14 @@ const ADMIN_NAME = 'Test Admin'
 const ADMIN_IPR = 3
 const COOKIE_NAME = 'mnp_sess'
 const VENUE_KEY = 'TESTV'
-const VENUE_MACHINES = ['TAF', 'MM', 'AFM']
+// Venue order, key order, and name order all differ, so tests can tell how a list is sorted.
+const MACHINE_NAMES = {
+   TAF: 'The Addams Family',
+   MM: 'Medieval Madness',
+   AFM: 'Attack from Mars',
+   HOO: 'Bally Hoo'
+}
+const VENUE_MACHINES = Object.keys(MACHINE_NAMES)
 const VERBOSE_ENV = 'TEST_VERBOSE'
 
 const DATA_DIRS = ['ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads', 'signups']
@@ -48,7 +55,7 @@ function setup(options = {}) {
    const ratings = [{ name: ADMIN_NAME, ipr: ADMIN_IPR }, ...(options.ratings || [])]
    fs.writeFileSync(path.join(dataFolder, 'IPR.csv'), ratings.map(r => `${r.ipr},${r.name}\n`).join(''))
    writeJson(path.join(dataFolder, 'machines.json'), Object.fromEntries(
-      VENUE_MACHINES.map(key => [key, { key, name: key }])
+      VENUE_MACHINES.map(key => [key, { key, name: MACHINE_NAMES[key] }])
    ))
    writeJson(path.join(dataFolder, 'venues.json'), {
       [VENUE_KEY]: { key: VENUE_KEY, name: 'Test Venue', machines: VENUE_MACHINES }
@@ -91,9 +98,8 @@ function createPlayer({ key, name, email = `${key}@example.com` }) {
 }
 
 // Writes a session file for the player and returns the Cookie header value.
-function login(playerKey) {
-   sessionCount++
-   const sessionId = `test-session-${sessionCount}`
+// Pass sessionId when the cookie value must be known in advance (browser tests).
+function login(playerKey, sessionId = `test-session-${++sessionCount}`) {
    writeJson(path.join(dataFolder, 'sessions', sessionId), {
       key: playerKey,
       created_at: Date.now()
@@ -121,6 +127,8 @@ module.exports = {
    TEST_SEASON,
    VENUE_KEY,
    VENUE_MACHINES,
+   MACHINE_NAMES,
+   COOKIE_NAME,
    sentEmails: require('./stub-email').sentEmails,
    STUB_EMAIL_PRELOAD: require.resolve('./stub-email'),
    setup,
