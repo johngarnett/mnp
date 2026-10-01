@@ -29,7 +29,11 @@ const MACHINE_NAMES = {
 const VENUE_MACHINES = Object.keys(MACHINE_NAMES)
 const VERBOSE_ENV = 'TEST_VERBOSE'
 
-const DATA_DIRS = ['ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads', 'signups']
+// signups/<reason> folders match the signup form's signup_reason values plus the route's default.
+const DATA_DIRS = [
+   'ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads',
+   'signups/account', 'signups/looking', 'signups/default'
+]
 const EMPTY_FILES = ['.shadows', '.tokens']
 
 let dataFolder = null
@@ -48,7 +52,7 @@ function setup(options = {}) {
    }
 
    dataFolder = fs.mkdtempSync(path.join(os.tmpdir(), TEMP_PREFIX))
-   DATA_DIRS.forEach(dir => fs.mkdirSync(path.join(dataFolder, dir)))
+   DATA_DIRS.forEach(dir => fs.mkdirSync(path.join(dataFolder, dir), { recursive: true }))
    EMPTY_FILES.forEach(file => fs.writeFileSync(path.join(dataFolder, file), ''))
    fs.mkdirSync(path.join(dataFolder, TEST_SEASON, 'matches'), { recursive: true })
 
