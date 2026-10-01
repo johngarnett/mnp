@@ -33,8 +33,6 @@ change gets a test in `tests/` (see `docs/testing.md`).
   question to the signup form.
 - [ ] **Player key remapping** (`275f3a3`) — `lib/make-key.js` can map a
   player's name to an existing key so a renamed player keeps their key.
-- [ ] **Report Player Conduct** (`ff7876a`) — conduct report form and
-  confirmation templates.
 
 ## Navigation and pages
 
@@ -71,6 +69,8 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 Do these after everything else.
 
+- [ ] **Report Player Conduct** (`ff7876a`) — conduct report form and
+  confirmation templates.
 - [ ] **Menu split and My Team** (`23b4dba`, `16451b9`) — split the nav bar
   into the main menu plus a PLAYER menu in the upper right (shows the player's
   first name when logged in), add "My Team", and expand the player profile
