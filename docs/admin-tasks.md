@@ -128,32 +128,39 @@ Other account tools:
 
 ## Season files
 
-- **Build `season.json`:** `node importers/genseason.js <season number> --input
-  <folder> [--output <file>]` reads tab-separated files with header rows from
-  the input folder:
+- **Build `season.json`:** `node importers/import-season.js [season folder]
+  [--number <n>]` reads comma-separated files (no header row) from
+  `<season>/` and writes `<season>/season.json`:
 
   | File | Columns |
   |---|---|
-  | `venues.csv` | key, name, ... |
-  | `weeks.csv` | key (week number), date (MM/DD/YYYY) |
-  | `teams.csv` | key, name, venue, group (optional), division |
-  | `players.csv` | team, name, captain (TRUE/FALSE), co-captain (TRUE/FALSE) |
-  | `schedule.csv` | week, venue, home, away, playoffs (TRUE/FALSE) |
-  | `groups.csv` | key, name (optional; otherwise "target" becomes "Target") |
+  | `venues.csv` | venue key, venue name |
+  | `teams.csv` | team key, home venue key, team name |
+  | `rosters.csv` | player name, team key, role (C captain, A co-captain, P player) |
+  | `matches.csv` | week, date (YYYYMMDD), away team, home team, venue |
+  | `groups.csv` | group key, group name, team keys... (optional) |
 
-  Match keys are `slp-<season>-<week>-<venue>-<home>-<away>`. Use `BYE` as a
-  team for a bye week. Every team needs a group (the team page needs one);
-  teams with no group in `teams.csv` go in `target`. Without `--output` it
-  prints the JSON. If
-  any team, venue, or week key is unknown, it lists every problem and writes
-  nothing.
+  - Match keys are `slp-<number>-<week>-<venue>-<home>-<away>`. `--number`
+    defaults to the folder name (season folder `9` with `--number 1` keeps
+    the current season's keys, `slp-1-...`).
+  - Weeks after `NUM_WEEKS` are playoffs and may use placeholder teams (`S1`-
+    `S12`, `QF1`-`QF8`, `H45`, `H18`, `H36`, `H27`, `FN1`, `FN2`, `BR3`,
+    `BR4`); weeks 91-93 are labeled Quarter Finals, Semi Finals, Finals &
+    Bronze. Week `S` is a scrimmage.
+  - Any other week (such as `0`) is a special event: put the hosting team in the
+    away column and the text (HTML) to show in the home column.
+  - Use `BYE` as a team for a bye week.
+  - Without `groups.csv`, every team goes in one `target` group (the team page
+    needs every team in a group). Divisions are always 0.
+  - If any team, venue, or date is unknown, it lists every problem and doesn't
+    write `season.json`.
 
   **Regenerating mid-season overwrites roster changes made on the team pages.**
-  Export the rosters first (below) and use that file as `players.csv`.
+  Export the rosters first (below) and use that file as `rosters.csv`.
 - **Export current rosters:** `node importers/export-season.js [season]`
-  writes `<season>/exported-players.csv` in the `players.csv` format above,
+  writes `<season>/exported-rosters.csv` in the `rosters.csv` format above,
   including roster changes made on the team pages. Use it as the starting point
-  for next season's `players.csv`.
+  for next season's `rosters.csv`.
 
 ## Unsupported
 

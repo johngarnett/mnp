@@ -171,10 +171,10 @@ See [docs/admin-tasks.md](docs/admin-tasks.md) for admin abilities on the site a
 
 ### Building a season
 
-`importers/genseason.js` builds `season.json` from tab-separated venue, week, team, player, and schedule files. See [docs/admin-tasks.md](docs/admin-tasks.md#season-files) for the file formats.
+`importers/import-season.js` builds `data/<season>/season.json` from the season's CSV files (`venues.csv`, `teams.csv`, `rosters.csv`, `matches.csv`, and optionally `groups.csv`) in the same folder. See [docs/admin-tasks.md](docs/admin-tasks.md#season-files) for the file formats.
 
 ```
-node importers/genseason.js <season number> --input <folder> --output data/<season>/season.json
+node importers/import-season.js <season folder> [--number <season number>]
 ```
 
 ### Generating a week of matches
