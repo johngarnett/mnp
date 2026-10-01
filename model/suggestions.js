@@ -36,17 +36,3 @@ function getSuggestions(teams) {
 module.exports = {
   getSuggestions
 };
-
-/* TEST
-const testTeams = ['PBR', 'DTP'];
-const sugs = getSuggestions(testTeams);
-console.log(testTeams);
-
-// console.log(sugs);
-console.log('Ros:', Object.keys(lookup).length);
-console.log('IPR:', IPR.getNames().length);
-console.log('Num:', sugs.length);
-console.log('Check:', 'Geoff Simons', sugs.includes('Geoff Simons')); // expect true
-console.log('Check:', 'Dwayne Collins', sugs.includes('Dwayne Collins')); // expect true
-console.log('Check:', 'Dave Stewart', sugs.includes('Dave Stewart')); // expect false
-*/
