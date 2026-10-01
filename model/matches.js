@@ -4,6 +4,7 @@ var CONST = require('../constants');
 var players = require('./players');
 var IPR = require('./ratings');
 const config = require('../config');
+const { isAdmin } = require('../lib/admins');
 const DATA_FOLDER = config.DATA_FOLDER;
 const stem = DATA_FOLDER  + '/' + config.CURRENT_SEASON
 
@@ -182,8 +183,7 @@ function listRemove(list,key) {
 }
 
 function isAuth(ukey,list) {
-  if(ukey == CONST.ROOT) return true;
-  if (!!config.LEAGUE_ADMINS.find(k => k === ukey)) return true; // JWG
+  if(isAdmin(ukey)) return true;
 
   for(i in list) {
     var p = list[i];
@@ -221,7 +221,6 @@ Team.prototype = {
   /** Admins and captains can invite */
   hasCaptain: function(ukey) {
     var result = isAuth(ukey,this.captains);
-    console.log(config.LEAGUE_ADMINS);
     return result;
   },
   getPermissions: function(ukey) {

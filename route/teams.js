@@ -9,8 +9,7 @@ const seasons = require('../model/seasons');
 const matches = require('../model/matches'); //For standings
 const stats = require('../model/stats');
 const IPR = require('../model/ratings');
-const { ROOT } = require('../constants');
-const config = require('../config');
+const { isAdmin } = require('../lib/admins');
 
 // TODO: Look into getSuggestions in the context of rosters.
 //  There appears to be some match specific filtering built in
@@ -25,17 +24,8 @@ const base = fs.readFileSync('./template/base.html').toString();
 
 const byName = (a,b) => [a.name, b.name].sort()[0] === a.name ? -1 : 1;
 
-const admins = [
-  ROOT,
-  // TODO: What bad happens if the env doesn't exist?
-  // TODO: What if there are no admins (empty string)?
-  // My guess is that the first call to teams.js would crash
-  // the server.
-  ...config.LEAGUE_ADMINS
-];
-
 router.use(function(req,res,next) {
-  req.user.isLeagueAdmin = !!admins.find(k => k === req.user.key);
+  req.user.isLeagueAdmin = isAdmin(req.user.key);
   next();
 });
 

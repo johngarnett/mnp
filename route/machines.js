@@ -1,9 +1,8 @@
 var fs = require('fs');
-var CONST = require('../constants');
 var express = require('express');
 var mustache = require('mustache');
 var router = express.Router();
-const config = require('../config');
+const { isAdmin } = require('../lib/admins');
 
 var machines = require('../model/machines');
 
@@ -14,7 +13,7 @@ var base = fs.readFileSync('./template/base.html').toString();
 var MACHINE_KEY_MAX_LENGTH = 20;
 
 function canEditMachines(ukey) {
-  return CONST.ROOT == ukey || config.LEAGUE_ADMINS.includes(ukey);
+  return isAdmin(ukey);
 }
 
 function normalizeMachineKey(raw) {
