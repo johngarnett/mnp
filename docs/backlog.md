@@ -49,7 +49,7 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Logging
 
-- [ ] **Richer POST logging** (`3243741`, `f237a44`, `b3c66ab`) — include match
+- [x] **Richer POST logging** (`3243741`, `f237a44`, `b3c66ab`) — include match
   data, the lineups request path, and game report details in
   `middleware/postlog.js` log entries.
 
