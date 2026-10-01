@@ -2,10 +2,15 @@ var fs = require('fs');
 
 var _map = {};
 
-const DATA_FOLDER = require('../config').DATA_FOLDER;
-const DATA_DIR = DATA_FOLDER + '/stats';
+const config = require('../config');
+const DATA_FOLDER = config.DATA_FOLDER;
+const CURRENT_SEASON = config.CURRENT_SEASON;
+// Each season keeps its own player stats.
+const DATA_DIR = DATA_FOLDER + '/' + CURRENT_SEASON + '/stats';
 
 function load() {
+  // A new season has no stats folder until compute-stats runs.
+  fs.mkdirSync(DATA_DIR, { recursive: true });
   var list = fs.readdirSync(DATA_DIR);
   console.log("Stats load()... list.len:",list.length);
   for(i in list) {

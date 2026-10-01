@@ -38,11 +38,6 @@ if [ ! -d "data/sessions" ]; then
 	mkdir data/sessions
 fi
 
-if [ ! -d "data/stats" ]; then 
-	echo "creating folder: data/stats"
-	mkdir data/stats
-fi
-
 if [ ! -d "data/uploads" ]; then 
 	echo "creating folder: data/uploads"
 	mkdir data/uploads
@@ -81,6 +76,11 @@ if [ ! -f ".env" ]; then
 	if [ ! -d "data/season-0" ]; then
 		echo "creating sample season-0"
 		mkdir data/season-0
+	fi
+
+	if [ ! -d "data/season-0/stats" ]; then
+		echo "creating folder: data/season-0/stats"
+		mkdir data/season-0/stats
 	fi
 
 	if [ ! -f "data/season-0/teams.csv" ]; then
