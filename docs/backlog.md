@@ -59,13 +59,43 @@ change gets a test in `tests/` (see `docs/testing.md`).
   `DATA_FOLDER/<season>/stats` instead of `DATA_FOLDER/stats`. NESLP also
   creates the folder when missing. Production needs `util/compute-stats.js`
   rerun (or `data/stats/*` moved into the season folder) after deploying.
-- [ ] **Season export tools** (`bcf0c95`, `da8d658`) — `importers/export-season.js`
-  and `importers/export-season-matches.js` write rosters and match results to
-  CSV. Strip out the handicap columns.
-- [ ] **CSV and report scripts** (`ab513c9`, `3126412`, `9a75eab`) —
-  `util/create_players_csv.js`, `util/create_posts_csv.sh`,
-  `util/create_season_players_csv.sh`, and `util/team-ipr-avg.sh`. Update
-  `mnp-` match-key patterns to `slp-`.
+- [ ] **Season export tools** (`bcf0c95`, `da8d658`) — admin scripts, run by
+  hand. Deferred.
+  - `importers/export-season.js` writes each team's current roster to
+    `exported-rosters.csv` as `name,team,role` (C/A/P), the same format as
+    `rosters.csv`. Purpose: capture end-of-season rosters, after in-season
+    changes, as the starting point for next season's setup.
+  - `importers/export-season-matches.js` writes one row per match with each
+    team's sub count, sub IPR, roster IPR, total IPR, points, bonus, and round 4
+    points. Purpose: mnp added it with its handicap (Aug 2025) to judge whether
+    the handicap was fair. Only useful to NESLP as a general results export.
+  - Porting notes: the season argument only changes the output folder, not the
+    season read (set `CURRENT_SEASON` from it before loading models); the match
+    export uses mnp's handicap bonus fields and crashes on missing matches.
+- [ ] **CSV and report scripts** (`ab513c9`, `3126412`, `9a75eab`) — admin
+  scripts, run by hand. Deferred.
+  - `util/create_players_csv.js` lists every player account (name, key, signup
+    date, verified) and counts names with trailing spaces. Purpose: account
+    audits, such as unverified sign-ups and messy names.
+  - `util/create_season_players_csv.sh` lists everyone who appeared in a match
+    lineup, in one season or all, with the date they last played. Purpose: tell
+    active players from lapsed ones; also the key-to-name lookup for the posts
+    CSV.
+  - `util/create_posts_csv.sh` turns the POST log (`data/posts`) into CSVs with
+    names filled in: one of admin actions (machine, roster, venue edits) and a
+    timeline per season of match activity (lineups, readies, picks, responses,
+    score reports, confirmations). Purpose: settle disputes, see how long
+    captains take to pick, and trace problems. Uses the richer POST logging
+    ported earlier. The most useful of these tools for NESLP.
+  - `util/team-ipr-avg.sh` averages each team's games-weighted IPR over weeks
+    1-10. Purpose: mnp's playoff rules (L4.03.3d, L4.03.5) seed the B semifinals
+    and finals by lowest average team IPR. Only relevant if NESLP adopts a
+    similar rule; its ÷3 formula and weeks 1-10 are MNP-specific.
+  - Porting notes: the shell scripts hardcode relative `../data` paths (use
+    `DATA_FOLDER`), write to MNP-style `season-N` folders (NESLP's are `9`), and
+    need `jq`, plus `pv` and Miller (`mlr`), which aren't installed here.
+    `create_posts_csv.sh` creates its season folders with a grep that misses the
+    log's pretty-printed JSON. `find -regex` with `+` fails on macOS.
 - [x] **Signup folder** (`2b69837`) — save signups to `signups/account/` rather
   than a folder named after the submitted signup reason, which let a form post
   write files anywhere. The reason stays in the record.
