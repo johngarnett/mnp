@@ -29,7 +29,7 @@ const MACHINE_NAMES = {
 const VENUE_MACHINES = Object.keys(MACHINE_NAMES)
 const VERBOSE_ENV = 'TEST_VERBOSE'
 
-const DATA_DIRS = ['ifpa', 'matches', 'players', 'posts', 'sessions', 'stats', 'uploads', 'signups/account']
+const DATA_DIRS = ['ifpa', 'matches', 'players', 'posts', 'sessions', 'uploads', 'signups/account']
 const EMPTY_FILES = ['.shadows', '.tokens']
 
 let dataFolder = null

@@ -61,7 +61,7 @@ function runComputeStats() {
 }
 
 function readStats(playerKey) {
-   return JSON.parse(fs.readFileSync(path.join(dataFolder, 'stats', playerKey)))
+   return JSON.parse(fs.readFileSync(path.join(dataFolder, fixture.TEST_SEASON, 'stats', playerKey)))
 }
 
 describe('player stats by week', () => {
