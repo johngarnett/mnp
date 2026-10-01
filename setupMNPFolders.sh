@@ -48,6 +48,11 @@ if [ ! -d "data/uploads" ]; then
 	mkdir data/uploads
 fi
 
+if [ ! -d "data/signups/account" ]; then 
+	echo "creating folder: data/signups/account"
+	mkdir -p data/signups/account
+fi
+
 
 # Required files
 if [ ! -f "data/.shadows" ]; then

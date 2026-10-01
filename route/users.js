@@ -149,13 +149,13 @@ router.get('/signup',function(req,res) {
   renderSignup(res, { redirect_url: req.params.redirect_url });
 });
 
+// All sign-ups go in one folder; signup_reason is kept inside the record. Using the
+// submitted reason as a folder name let a form post write files anywhere.
 function saveSignup(body) {
   var json = JSON.stringify(body, null, 2);
   var key = util.digest(json);
 
-  const reason = body.signup_reason || 'default';
-
-  fs.writeFileSync(DATA_FOLDER + '/signups/' + reason + '/' + key + '.json', json);
+  fs.writeFileSync(DATA_FOLDER + '/signups/account/' + key + '.json', json);
 }
 
 router.post('/signup',function(req,res) {
