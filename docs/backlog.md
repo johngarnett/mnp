@@ -38,8 +38,6 @@ change gets a test in `tests/` (see `docs/testing.md`).
 
 ## Navigation and pages
 
-- [ ] **Menu reorganization and My Team** (`23b4dba`, `16451b9`) — reorganized
-  nav menu, "My Team" item, and an expanded player profile page.
 - [ ] **Admin editing of machines** (`9be307d`) — allow league admins to edit
   the machines page.
 - [ ] **Sorted pick lists** (`f9ba89d`) — sort machines and players in the
@@ -68,3 +66,13 @@ change gets a test in `tests/` (see `docs/testing.md`).
   `mnp-` match-key patterns to `slp-`.
 - [ ] **Signup folder** (`2b69837`) — save signups to `signups/account/` rather
   than a folder named after the signup reason.
+
+## Last
+
+Do these after everything else.
+
+- [ ] **Menu split and My Team** (`23b4dba`, `16451b9`) — split the nav bar
+  into the main menu plus a PLAYER menu in the upper right (shows the player's
+  first name when logged in), add "My Team", and expand the player profile
+  page. The routes in `23b4dba` pass `playerFN` to every page for the new
+  menu, and the "My Team" link in `16451b9` lives in the PLAYER menu.
