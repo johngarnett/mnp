@@ -1,5 +1,9 @@
 <a href="/venues">Venues</a> : {{venue_id}}
 
+<P>
+{{address}}
+</P>
+
 {{#canAdd}}
 <div class="jumbotron">
   <form action="/venues/{{venue_id}}/add" method="POST">

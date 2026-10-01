@@ -116,7 +116,8 @@ router.get('/venues/:key',function(req,res) {
     return;
   }
   
-  const venue = venues.get(req.params.key);
+  const venue = venues.get(req.params.key); 
+
   if(!venue) {
     //For invalid venues, just redirect to /venues
     return res.redirect('/venues');
@@ -129,6 +130,7 @@ router.get('/venues/:key',function(req,res) {
 
   const name = venue.name;
   const key = venue.key;
+  const address = venue.address;
 
   const list = [];
   for(i in venue.machines) {
@@ -136,17 +138,24 @@ router.get('/venues/:key',function(req,res) {
     const m = machines.get(mk);
     if(m) list.push(m);
     else list.push({ key: mk, name: mk});
+    console.log('machine', m, {key: mk, name: mk});
   }
 
   list.sort((a,b) => [a.name, b.name].sort()[0] == a.name ? -1 : 1);
 
+  // console.log('list', list)
+  // console.log('machines.all', machines.all())
+
+  console.log(['canAdd', canAdd])
+
   const template = fs.readFileSync('./template/venue.html').toString();
-  const html = mustache.render(base,{
+  const html = mustache.render(base, {
     title: name,
     canAdd: canAdd,
     canRemove: canRemove,
     venue_id: key,
     name: name,
+    address: address,
     machines: list,
     sugs: machines.all()
   },{
