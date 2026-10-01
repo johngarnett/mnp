@@ -103,34 +103,34 @@ if [ ! -f ".env" ]; then
               "name": "Soda Jerks",
               "roster": [
                 {
-                  "name": "Allison McClure"
+                  "name": "SJK Player 1"
                 },
                 {
-                  "name": "Ari Golding"
+                  "name": "SJK Player 2"
                 },
                 {
-                  "name": "Austin Arlitt"
+                  "name": "SJK Player 3"
                 },
                 {
-                  "name": "Bobby Conover"
+                  "name": "SJK Player 4"
                 },
                 {
-                  "name": "Danny Rashid"
+                  "name": "SJK Player 5"
                 },
                 {
-                  "name": "Garrick West"
+                  "name": "SJK Player 6"
                 },
                 {
-                  "name": "Jarrett Gaddy"
+                  "name": "SJK Player 7"
                 },
                 {
-                  "name": "John McAllister"
+                  "name": "SJK Player 8"
                 },
                 {
-                  "name": "Matt Galbraith"
+                  "name": "SJK Player 9"
                 },
                 {
-                  "name": "Raymond Davidson"
+                  "name": "SJK Player 10"
                 }
               ],
               "schedule": [
@@ -146,8 +146,8 @@ if [ ! -f ".env" ]; then
                 }
               ],
               "division": 1,
-              "captain": "Bobby Conover",
-              "co_captain": "Raymond Davidson"
+              "captain": "SJK Player 4",
+              "co_captain": "SJK Player 10"
             },
             "NLT": {
               "key": "NLT",
@@ -155,34 +155,34 @@ if [ ! -f ".env" ]; then
               "name": "Northern Lights",
               "roster": [
                 {
-                  "name": "Brett Wolfe"
+                  "name": "NLT Player 1"
                 },
                 {
-                  "name": "Cameron Austgen"
+                  "name": "NLT Player 2"
                 },
                 {
-                  "name": "Cory Lampe"
+                  "name": "NLT Player 3"
                 },
                 {
-                  "name": "Evan Eckles"
+                  "name": "NLT Player 4"
                 },
                 {
-                  "name": "Fabian Benabente"
+                  "name": "NLT Player 5"
                 },
                 {
-                  "name": "James Thompson"
+                  "name": "NLT Player 6"
                 },
                 {
-                  "name": "Jason Heitt"
+                  "name": "NLT Player 7"
                 },
                 {
-                  "name": "Laura Minter"
+                  "name": "NLT Player 8"
                 },
                 {
-                  "name": "Neil Kubath"
+                  "name": "NLT Player 9"
                 },
                 {
-                  "name": "Taylor Minter"
+                  "name": "NLT Player 10"
                 }
               ],
               "schedule": [
@@ -198,8 +198,8 @@ if [ ! -f ".env" ]; then
                 }
               ],
               "division": 1,
-              "captain": "Brett Wolfe",
-              "co_captain": "Taylor Minter"
+              "captain": "NLT Player 1",
+              "co_captain": "NLT Player 10"
             }
           },
           "weeks": [
@@ -235,8 +235,8 @@ fi
 if [ ! -f "data/IPR.csv" ]; then
 	echo "creating sample file: data/IPR.csv"
 	cat > data/IPR.csv <<- "EOF"
-	1,Jason Isringhausen
-	6,Harold Reynolds
+	1,SJK Player 1
+	6,NLT Player 1
 	EOF
 fi
 
