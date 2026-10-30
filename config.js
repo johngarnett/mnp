@@ -6,12 +6,18 @@ const config = {
   UPLOADS_FOLDER: process.env.UPLOADS_FOLDER || __dirname + '/data/uploads',
   CURRENT_SEASON: process.env.CURRENT_SEASON || 'season-23',
   NUM_WEEKS: process.env.NUM_WEEKS || 10,
-  ANNOUNCEMENTS_TEMPLATE_URL: process.env.ANNOUNCEMENTS_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/index.html',
-  LEAGUERULES_TEMPLATE_URL: process.env.LEAGUERULES_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/leaguerules.html',
-  MATCHRULES_TEMPLATE_URL: process.env.MATCHRULES_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/matchrules.html',
-  NEWPLAYERS_TEMPLATE_URL: process.env.NEWPLAYERS_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/newplayers.html',
-  RATINGS_TEMPLATE_URL: process.env.RATINGS_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/ratings.html',
-  HANDICAP_TEMPLATE_URL: process.env.HANDICAP_TEMPLATE_URL || 'https://raw.githubusercontent.com/Invader-Zim/mnp-announcements/main/handicapping.html',
+  //The league's branding: a checkout of its branding repo (see docs/branding.md).
+  //BRANDING_URL, when set, is the raw base URL of that repo, from which the
+  //content pages are refreshed while the server runs.
+  BRANDING_FOLDER: process.env.BRANDING_FOLDER || __dirname + '/branding/example',
+  BRANDING_URL: process.env.BRANDING_URL,
+  //Deployment: TLS=internal serves HTTPS itself (443, with 80 redirecting);
+  //TLS=proxy serves plain HTTP on PORT behind a reverse proxy such as Apache.
+  TLS: process.env.TLS || 'internal',
+  PORT: process.env.PORT,
+  TRUST_PROXY: process.env.TRUST_PROXY,
+  //The site's public address for links in emails (default: the request's host).
+  PUBLIC_URL: process.env.PUBLIC_URL,
   CREDENTIALS_FOLDER: process.env.CREDENTIALS_FOLDER || './credentials',
   IFPA_API_KEY: process.env.IFPA_API_KEY,
   SCORE_SERVICE_URL: process.env.SCORE_SERVICE_URL || 'https://api.scores.pinball.group',

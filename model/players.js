@@ -6,6 +6,7 @@ var email = require('../lib/email');
 var util = require('../lib/util');
 var Auth = require('../lib/auth');
 const makeKey = require('../lib/make-key');
+const brand = require('../lib/branding');
 const DATA_FOLDER = require('../config').DATA_FOLDER;
 var _map = {};
 
@@ -113,20 +114,22 @@ function isBogusName(rawName) {
 
 function sendVerify(params) {
   console.log("sendVerify()... ");
-  var template = fs.readFileSync('./template/email_verify.html').toString();
+  var template = fs.readFileSync(brand.emailFile('verify')).toString();
 
   var url = params.url;
   var name = cleanedName(params.name.trim());
   var to = params.email.trim();
-  var subject = params.subject || 'MNP - Confirm Email';
+  var subject = params.subject || brand.emailSubjects.verify;
 
   var message = mustache.render(template, {
+    brand: brand,
     name: name,
     link: url
   });
 
   var urlLink = `<br/><br/><a href="${url}">${url}</a><br/><br/>`;
   var htmlMessage = mustache.render(template, {
+    brand: brand,
     name: name,
     link: urlLink
   });
@@ -142,20 +145,22 @@ function isString(val) {
 
 function sendForgotPass(params) {
   console.log("sendForgotPass()... ");
-  var template = fs.readFileSync('./template/email_forgotpass.html').toString();
+  var template = fs.readFileSync(brand.emailFile('forgotPassword')).toString();
 
   var url = params.url;
   var name = params.name;
   var to = params.email;
-  var subject = params.subject || 'MNP - Reset Password';
+  var subject = params.subject || brand.emailSubjects.forgotPassword;
 
   var message = mustache.render(template, {
+    brand: brand,
     name: name,
     link: url
   });
 
   var urlLink = '<br/><br/><a href="' + url + '">' + url + '</a><br/><br/>';
   var htmlMessage = mustache.render(template, {
+    brand: brand,
     name: name,
     link: urlLink
   });
@@ -297,7 +302,11 @@ module.exports = {
     var from = params.from.length > 0 ? params.from : 'anonymous';
     var message = 'Reported by: ' + from + '\n\n' + params.message;
   
-    email.send('seattlemnp@gmail.com', subject, message, message);
+    if(!brand.conductEmail) {
+      console.error('Conduct report not sent: the branding has no conductEmail');
+      return callback(null, null);
+    }
+    email.send(brand.conductEmail, subject, message, message);
     callback(null, null);
   },
   forgotpass: function(params,callback) {

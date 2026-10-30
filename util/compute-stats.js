@@ -63,10 +63,11 @@ const rosters = fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/rosters.c
   return x;
 }, {});
 
-const regex = /mnp-\d+-([1-9][0-9]|[1-9])-/
+//League matches, keyed <prefix>-<season>-<week>-..., in weeks 1 and up (week 0 is preseason).
+const regex = new RegExp(require('../lib/branding').matchKeyPrefix + '-\\d+-([1-9][0-9]|[1-9])-')
 
 const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
-.filter(fn => fn.match(regex)) // only MNP league matches
+.filter(fn => fn.match(regex)) // only league matches
 .map(fn => {
   return JSON.parse(fs.readFileSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches/' + fn));
 })

@@ -34,6 +34,8 @@ router.use(require('./detect'));
 router.use(require('./league'));
 router.use(require('./machines'));
 router.use(require('./teams'));
+//The branding's files (icons, brand.css, ...) take precedence over the app's.
+router.use(express.static(require('../lib/branding').staticDir));
 router.use(express.static('static'));
 
 module.exports = router;

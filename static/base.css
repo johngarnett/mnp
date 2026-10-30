@@ -1,7 +1,6 @@
 div { padding: 7px; }
 body {
-  background-image: url(skyline.jpg);
-  background-repeat: repeat-x;
+  /* A background image, if any, comes from the branding's brand.css. */
   background-color: black;
   font-family: sans-serif;
 }

@@ -5,7 +5,17 @@ var mustache = require('mustache');
 var ids = require('../lib/ids');
 var util = require('../lib/util');
 var players = require('../model/players');
+const config = require('../config');
+const { renderPage } = require('../lib/render');
+const brand = require('../lib/branding');
+const pages = require('../lib/content-pages');
 var venues = require('../model/venues');
+
+//The site's address for links in emails: PUBLIC_URL, else the branding's
+//publicUrl, else the address the request came to.
+function publicUrl(req) {
+  return config.PUBLIC_URL || brand.publicUrl || (req.protocol + '://' + req.hostname);
+}
 
 var COOKIE_NAME = 'mnp_sess';
 //SameSite=Lax: other websites can't send requests with a player's login.
@@ -20,7 +30,6 @@ router.use(function(req, res, next) {
   next();
 });
 
-var base = fs.readFileSync('./template/base.html').toString();
 
 router.get('/login',function(req,res) {
   sendLoginHtml(res,null,req.query.redirect_url);
@@ -30,7 +39,7 @@ function sendLoginHtml(res,err,redirect_url) {
   var template = fs.readFileSync('./template/login.html').toString();
 
   res.send(
-    mustache.render(base, {
+    renderPage(null, {
       title: 'Login',
       error: err,
       redirect_url: redirect_url || ''
@@ -62,10 +71,9 @@ router.get('/profile',function(req,res) {
   if(!player) { return res.redirect('/login?redirect_url=/profile'); }
 
   var template = fs.readFileSync('./template/profile.html').toString();
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     title: 'Profile',
     player: player,
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
   }, {
     content: template
   });
@@ -76,9 +84,8 @@ router.get('/forgotpass',function(req,res) {
   console.log('/forgotpass post');
   var template = fs.readFileSync('./template/forgotpass.html').toString();
   const ukey = req.user.key || 'ANON';
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     title: 'Forgot Password',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
   }, {
     content: template
   });
@@ -89,7 +96,7 @@ router.post('/forgotpass',function(req,res) {
   console.log('POST forgotpass')
   req.body.timestamp = Date.now();
 
-  var host = req.protocol + '://' +req.hostname;
+  var host = publicUrl(req);
   players.forgotpass({
     username: req.body.username,
     host: host
@@ -116,7 +123,7 @@ router.get('/conduct_thanks',function(req,res) {
   console.log('/conduct_thanks post');
   var template = fs.readFileSync('./template/conduct_thanks.html').toString();
   const ukey = req.user.key || 'ANON';
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     title: 'Thank you',
     player: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
   }, {
@@ -156,7 +163,7 @@ router.get('/signup',function(req,res) {
   var question = players.getQuestion();
 
   const ukey = req.user.key || 'ANON';
-  var html = mustache.render(base,{
+  var html = renderPage(req, {
     title: 'Account Sign-Up',
     player: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     redirect_url: req.params.redirect_url,
@@ -185,7 +192,7 @@ router.post('/signup',function(req,res) {
 
   fs.writeFileSync(DATA_FOLDER + '/signups/account/' + key + '.json', json);
 
-  var host = req.protocol + '://' +req.hostname;
+  var host = publicUrl(req);
   players.signup({
     name: req.body.name,
     email: req.body.email,
@@ -199,9 +206,9 @@ router.post('/signup',function(req,res) {
       return res.redirect('/signup');
     }
 
-    var template = fs.readFileSync('./template/thanks.html').toString();
+    var template = pages.get('thanks');
     const ukey = req.user.key || 'ANON';
-    var html = mustache.render(base, {
+    var html = renderPage(req, {
       title: 'Thanks',
       player: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
     },{
@@ -244,7 +251,7 @@ router.get('/createpass',function(req,res) {
 
   if(!ukey) { return res.redirect('/signup'); }
 
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     title: 'Create Password',
     player: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     ukey: ukey
@@ -285,7 +292,7 @@ router.get('/welcome',function(req,res) {
   }
 
   const ukey = req.user.key || 'ANON';
-  var html = mustache.render(base,{
+  var html = renderPage(req, {
     title: 'Welcome',
     player: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     name: player.name,

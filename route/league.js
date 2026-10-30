@@ -1,17 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
-const mustache = require('mustache');
 
-const config = require('../config');
-const ANNOUNCEMENTS_TEMPLATE_URL = config.ANNOUNCEMENTS_TEMPLATE_URL;
-const LEAGUERULES_TEMPLATE_URL = config.LEAGUERULES_TEMPLATE_URL;
-const MATCHRULES_TEMPLATE_URL = config.MATCHRULES_TEMPLATE_URL;
-const NEWPLAYERS_TEMPLATE_URL = config.NEWPLAYERS_TEMPLATE_URL;
-const RATINGS_TEMPLATE_URL = config.RATINGS_TEMPLATE_URL;
-const HANDICAP_TEMPLATE_URL = config.HANDICAP_TEMPLATE_URL;
-
-const https = require("https");
+const HTTP_NOT_FOUND = 404;
 
 // TODO: This router is too big. There should be a closer 1:1 relationship with models.
 
@@ -23,29 +14,31 @@ const stats = require('../model/stats');
 // const ifpa = require('../model/ifpa');
 const IPR = require('../model/ratings');
 const { nameForKey } = require('../lib/all-names');
+const { renderPage } = require('../lib/render');
+const brand = require('../lib/branding');
+const pages = require('../lib/content-pages');
 
-const base = fs.readFileSync('./template/base.html').toString();
+//The content pages (home page, rules, ...) come from the branding folder, and
+//are refreshed from BRANDING_URL when it is set; see lib/content-pages.js.
+function sendPage(name, title) {
+  return function(req, res) {
+    res.send(renderPage(req, { title: title }, { content: pages.get(name) }));
+  };
+}
 
-// If ANNOUNCEMENTS_TEMPLATE_URL doesn't exist, or has error, use latest index.html as announcementContent
-var announcementsContent = fs.readFileSync('./template/index.html').toString();
+router.get('/', sendPage('index', 'Home'));
+router.get('/leaguerules', sendPage('leaguerules', 'League Rules'));
+router.get('/matchrules', sendPage('matchrules', 'Match Rules'));
+router.get('/ratings', sendPage('ratings', 'Ratings'));
+router.get('/newplayers', sendPage('newplayers', 'New Players'));
+router.get('/handicapping', sendPage('handicapping', 'Handicapping'));
+router.get('/new-teams', sendPage('new-teams', 'Call For Teams'));
 
-router.get('/',function(req,res) {
-  // refresh announcements
-  https.get(ANNOUNCEMENTS_TEMPLATE_URL, response => {
-    announcementsContent = ""
-    response.on('data',(chunk)=>{
-      announcementsContent+=chunk.toString();
-    });
+//The scoresheet PDF, when the branding provides one.
+router.get('/scoresheet',function(req,res) {
+  res.sendFile(brand.staticFile('scoresheet.pdf'), function(err) {
+    if(err) res.status(err.statusCode || HTTP_NOT_FOUND).send('No scoresheet for this league.');
   });
-  
-  const ukey = req.user.key || 'ANON';  
-  const html = mustache.render(base,{
-    title: 'Home',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: announcementsContent
-  });
-  res.send(html);
 });
 
 router.get('/standings',function(req,res) {
@@ -70,9 +63,8 @@ router.get('/standings',function(req,res) {
   }));
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Standings',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     divisions
   },{
     content: template
@@ -90,9 +82,8 @@ router.get('/schedule',function(req,res) {
   //TODO: Q: Where and when do we add results to the weeks?
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Schedule',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     weeks: weeks
   },{
     content: template
@@ -159,9 +150,8 @@ router.get('/stats',function(req,res) {
   });
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Stats',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     divisions
   }, {
     content: template
@@ -169,142 +159,15 @@ router.get('/stats',function(req,res) {
   res.send(html);
 });
 
-// If LEAGUERULES_TEMPLATE_URL doesn't exist, or has error, use latest leaguerules.html as leaguerulesContent
-var leaguerulesContent = fs.readFileSync('./template/leaguerules.html').toString();
-
-router.get('/leaguerules',function(req,res) {
-  // refresh announcements
-  https.get(LEAGUERULES_TEMPLATE_URL, response => {
-    leaguerulesContent = ""
-    response.on('data',(chunk)=>{
-      leaguerulesContent+=chunk.toString();
-    });
-  });
-
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'League Rules',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: leaguerulesContent
-  });
-  res.send(html);
-});
-
-// If MATCHRULES_TEMPLATE_URL doesn't exist, or has error, use latest matchrules.html as matchrulesContent
-var matchrulesContent = fs.readFileSync('./template/matchrules.html').toString();
-
-router.get('/matchrules',function(req,res) {
-  // refresh announcements
-  https.get(MATCHRULES_TEMPLATE_URL, response => {
-    matchrulesContent = ""
-    response.on('data',(chunk)=>{
-      matchrulesContent+=chunk.toString();
-    });
-  });
-
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'Match Rules',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: matchrulesContent
-  });
-  res.send(html);
-});
-
-router.get('/scoresheet',function(req,res) {
-  res.sendFile('template/scoresheetV5.pdf', {root: '.'});
-});
-
 router.get('/ifparules', function(req,res) {
   res.redirect('https://www.ifpapinball.com/wp/wp-content/uploads/2020/12/PAPA_IFPA-Complete-Competition-Rules-1.pdf');
-});
-
-router.get('/new-teams',function(req,res) {
-  const template = fs.readFileSync('./template/call-for-teams.html').toString();
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'Call For Teams',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: template
-  });
-  res.send(html);
-});
-
-// If RATINGS_TEMPLATE_URL doesn't exist, or has error, use latest ratings.html as ratingsContent
-var ratingsContent = fs.readFileSync('./template/ratings.html').toString();
-
-router.get('/ratings',function(req,res) {
-  // refresh announcements
-  https.get(RATINGS_TEMPLATE_URL, response => {
-    ratingsContent = ""
-    response.on('data',(chunk)=>{
-      ratingsContent+=chunk.toString();
-    });
-  });
-
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'Ratings',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: ratingsContent
-  });
-  res.send(html);
-});
-
-// If NEWPLAYERS_TEMPLATE_URL doesn't exist, or has error, use latest newplayers.html as newplayersContent
-var newplayersContent = fs.readFileSync('./template/newplayers.html').toString();
-
-router.get('/newplayers',function(req,res) {
-  // refresh announcements
-  https.get(NEWPLAYERS_TEMPLATE_URL, response => {
-    newplayersContent = ""
-    response.on('data',(chunk)=>{
-      newplayersContent+=chunk.toString();
-    });
-  });
-
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'New Player Information',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: newplayersContent
-  });
-  res.send(html);
-});
-
-// If HANDICAP_TEMPLATE_URL doesn't exist, or has error, use latest handicapping.html as handicapContent
-var handicapContent = fs.readFileSync('./template/handicapping.html').toString();
-
-router.get('/handicapping',function(req,res) {
-  // refresh announcements
-  https.get(HANDICAP_TEMPLATE_URL, response => {
-    handicapContent = ""
-    response.on('data',(chunk)=>{
-      handicapContent+=chunk.toString();
-    });
-  });
-
-  const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
-    title: 'Handicapping',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
-  },{
-    content: handicapContent
-  });
-  res.send(html);
 });
 
 router.get('/conduct',function(req,res) {
   const template = fs.readFileSync('./template/conduct.html').toString();
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Report Player Conduct',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER"
   },{
     content: template
   });
@@ -333,9 +196,8 @@ router.get('/players',function(req,res) {
   const template = fs.readFileSync('./template/players.html').toString();
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Players',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     players: players.all()
   },{
     content: template
@@ -384,9 +246,8 @@ router.get('/players/:key',function(req,res) {
   //TODO: Might be nice to have team mapped.
   const st = fullStats.divisions.all;
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Player',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     name,
     num_matches: st.num_matches,
     points_won: st.points.won,

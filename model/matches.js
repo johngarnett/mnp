@@ -15,6 +15,8 @@ var venues = require('./venues');
 const format = require('../lib/formats');
 const scoring = require('../lib/scoring');
 const handicap = require('../lib/handicap');
+//League matches are keyed <prefix>-<season>-<week>-...; the prefix is the branding's.
+const LEAGUE_MATCH_KEY = new RegExp('^' + require('../lib/branding').matchKeyPrefix + '-\\d+-\\d+');
 
 //The regular rounds of a new match. The tie-breaker round, for formats that
 //have one, is added by confirmScores when the match is tied after the last
@@ -441,7 +443,7 @@ Match.prototype = {
       var teams = season.teams;
       var roster = teams[team.key] ? teams[team.key].roster : null;
       var isRoster = false;
-      var isLeague = /^mnp-\d+-\d+/.test(this.key);
+      var isLeague = LEAGUE_MATCH_KEY.test(this.key);
       // console.log(this.key, isLeague, isRoster);
       if(roster) {
         for(x in roster) {

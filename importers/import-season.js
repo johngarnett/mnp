@@ -2,6 +2,7 @@ const fs = require('fs');
 const csv = require('../lib/csv');
 
 const config = require('../config');
+const MATCH_KEY_PREFIX = require('../lib/branding').matchKeyPrefix;
 const DATA_FOLDER = config.DATA_FOLDER;
 const CURRENT_SEASON = process.argv[2] || config.CURRENT_SEASON;
 const stem = DATA_FOLDER + '/' + CURRENT_SEASON + '/';
@@ -165,7 +166,7 @@ var weeks = {};
  */
 rows.forEach(row => {
   let match = {
-    key: 'mnp-' + seasonNumber + '-' +row[0]+ '-' +row[2]+ '-' +row[3],
+    key: MATCH_KEY_PREFIX + '-' + seasonNumber + '-' +row[0]+ '-' +row[2]+ '-' +row[3],
     week: row[0],
     date: row[1],
     away: row[2],

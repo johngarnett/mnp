@@ -1,0 +1,32 @@
+{
+  "name": "Example Pinball League",
+  "shortName": "EPL",
+  "titlePrefix": "Example Pinball League",
+  "copyright": "Example Pinball League",
+  "timeZone": "America/Los_Angeles",
+  "matchKeyPrefix": "epl",
+  "publicUrl": "",
+  "contactEmail": "league@example.com",
+  "conductEmail": "league@example.com",
+  "emailName": "Example Pinball League",
+  "mainMenu": [
+    { "label": "HOME", "href": "/" },
+    { "label": "SCHEDULE", "href": "/schedule" },
+    { "label": "STANDINGS", "href": "/standings" },
+    { "label": "STATS", "href": "/stats" },
+    { "label": "MATCHES", "href": "/matches" },
+    { "label": "TEAMS", "href": "/teams" },
+    { "label": "VENUES", "href": "/venues" },
+    { "label": "MACHINES", "href": "/machines" },
+    { "label": "LEAGUE RULES", "href": "/leaguerules" },
+    { "label": "MATCH RULES", "href": "/matchrules" }
+  ],
+  "playerMenu": [
+    { "label": "MY MATCH", "href": "/mymatch" },
+    { "label": "MY TEAM", "href": "/myteam" },
+    { "label": "MY ACCOUNT", "href": "/profile" },
+    { "label": "ACCOUNT SIGN-UP", "href": "/signup" },
+    { "label": "NEW PLAYER INFORMATION", "href": "/newplayers" },
+    { "label": "REPORT PLAYER CONDUCT", "href": "/conduct" }
+  ]
+}

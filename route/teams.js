@@ -12,6 +12,7 @@ const stats = require('../model/stats');
 const IPR = require('../model/ratings');
 const format = require('../lib/formats');
 const handicap = require('../lib/handicap');
+const { renderPage } = require('../lib/render');
 const { ROOT } = require('../constants');
 const config = require('../config');
 
@@ -24,7 +25,6 @@ const config = require('../config');
 const getSuggestions = () => IPR.getNames();
 
 
-const base = fs.readFileSync('./template/base.html').toString();
 
 const byName = (a,b) => [a.name, b.name].sort()[0] === a.name ? -1 : 1;
 
@@ -61,9 +61,8 @@ router.get('/teams',function(req,res) {
   list.sort(byName);
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     title: 'Teams',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     teams: list
   },{
     content: template
@@ -184,12 +183,11 @@ router.get('/teams/:team_id',function(req,res) {
   let teamHandicap = handicap.expected(lineup, format);
 
   const ukey = req.user.key || 'ANON';
-  const html = mustache.render(base,{
+  const html = renderPage(req, {
     canAdd: req.user.isLeagueAdmin,
     canRemove: req.user.isLeagueAdmin,
     team_id: team.key,
     title: team.name,
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     name: team.name,
     group: group,
     venue: vname,

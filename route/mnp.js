@@ -13,7 +13,7 @@ const FLASH_MAX_AGE_MS = 60 * 1000;
 
 //Match timing (match.metrics and round.metrics, see model/matches.js): clock
 //times are shown in the league's time zone, durations as m:ss.
-const LEAGUE_TIME_ZONE = 'America/Los_Angeles';
+const LEAGUE_TIME_ZONE = require('../lib/branding').timeZone;
 const MS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const NO_TIME = '—';
@@ -61,8 +61,8 @@ var { getSuggestions } = require('../model/suggestions');
 //The match format: rounds, lineup limits, bonus, handicap, tie-breaker (lib/formats).
 const format = require('../lib/formats');
 const handicap = require('../lib/handicap');
+const { renderPage } = require('../lib/render');
 
-var base = fs.readFileSync('./template/base.html').toString();
 
 router.get('/matches', function(req,res) {
 // TODO: Change ALL console.log statements to either debug() or info() log calls.
@@ -118,11 +118,10 @@ console.log("GET /matches");
 
 // console.log(weeks);
 
-  var html = mustache.render(base,{
+  var html = renderPage(req, {
     redirect_url: '/matches',
     style: style,
     title: 'Matches',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     has_handicap: format.handicap.enabled,
     // matches: boxes,
     week_nums: nums,
@@ -144,7 +143,7 @@ router.get('/matches/:match_id.json',function(req,res) {
 function sendCreate(res,errors) {
   var template = fs.readFileSync('./template/match_create.html').toString();
 
-  var html = mustache.render(base,{
+  var html = renderPage(null, {
     title: 'Create Match',
     playerFN: "ROOT",
     venues: venues.all(),
@@ -357,10 +356,9 @@ router.get('/matches/:match_id/venue',function(req,res) {
   var expected_points_to_tie_A = expected_points_to_tie - (expectedBonus(match.away.lineup) + expectedHcp(match.away.lineup));
   var expected_points_to_tie_H = expected_points_to_tie - (expectedBonus(match.home.lineup) + expectedHcp(match.home.lineup));
 
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     redirect_url: '/matches/'+match.key+'/venue',
     title: match.venue.name,
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     name: match.name,
     match_id: match.key,
     key: match.key,
@@ -482,10 +480,9 @@ function renderTeam(params) {
   var expected_points_to_tie_A = expected_points_to_tie - (expectedBonus(match.away.lineup) + expectedHcp(match.away.lineup));
   var expected_points_to_tie_H = expected_points_to_tie - (expectedBonus(match.home.lineup) + expectedHcp(match.home.lineup));
 
-  var html = mustache.render(base,{
+  var html = renderPage(ukey, {
     redirect_url: params.redirect_url || '/matches/' + match.key,
     title: params.label + ' Team',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     name: match.name,
     team_rating: teamRating,
     team_handicap: teamHandicap,
@@ -1005,9 +1002,8 @@ function renderMatch(params) {
   var expected_points_to_tie_A = expected_points_to_tie - (expectedBonus(match.away.lineup) + expectedHcp(match.away.lineup));
   var expected_points_to_tie_H = expected_points_to_tie - (expectedBonus(match.home.lineup) + expectedHcp(match.home.lineup));
 
-  var html = mustache.render(base, {
+  var html = renderPage(ukey, {
     title: 'Match',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     error: params.error, //why the last confirm or lineup step didn't work, shown once
     lineup_timing: timingTables.lineup,
     round_tables: timingTables.rounds,
@@ -1131,10 +1127,9 @@ router.get('/games/:key.:round.:n',function(req,res) {
 
   var prev = n > 1 ? stem + (n-1) : null;
   var next = n < spec.games ? stem + (n+1) : null;
-  var html = mustache.render(base, {
+  var html = renderPage(req, {
     redirect_url: '/games/'+req.params.key+'.'+round+'.'+n,
     title: 'Game',
-    playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
     style: css + '\n' + detectCss,
     name: match.name,
     key: match.key,

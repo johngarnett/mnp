@@ -6,7 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-<title>MondayNightPinball: {{title}}</title>
+<title>{{brand.titlePrefix}}: {{title}}</title>
 
 <link rel="shortcut icon" href="/favicon.ico" />
 
@@ -16,6 +16,7 @@
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 <link href="/base.css" rel="stylesheet" />
+<link href="/brand.css" rel="stylesheet" />
 
 
 {{#style}}
@@ -45,24 +46,15 @@ http://webdesignerwall.com/tutorials/css-responsive-navigation-menu
       <img src="/icon_128.png" width="38" height="38" /><span class="px-1 text-uppercase">{{title}}</span>
     </button>
     <div class="dropdown-menu">
-      <a class="dropdown-item" href="/">HOME</a>
-      <a class="dropdown-item" href="/schedule">SCHEDULE</a>
-      <a class="dropdown-item" href="/standings">STANDINGS</a>
-      <a class="dropdown-item" href="/stats">STATS</a>
-      <a class="dropdown-item" href="/matches">MATCHES</a>
-      <a class="dropdown-item" href="/teams">TEAMS</a>
-      <a class="dropdown-item" href="/venues">VENUES</a>
-      <a class="dropdown-item" href="/machines">MACHINES</a>
-      <a class="dropdown-item" href="/leaguerules">LEAGUE RULES</a>
-      <a class="dropdown-item" href="/matchrules">MATCH RULES</a>
-      <a class="dropdown-item" href="/ifparules">IFPA RULES</a>
-      <a class="dropdown-item" href="/ratings">RATINGS</a>
-      <a class="dropdown-item" href="/handicapping">HANDICAPPING</a>
-      <a class="dropdown-item" href="/scoresheet">SCORESHEET PDF</a>      
-      <a class="dropdown-item" href="http://tinyurl.com/mnparchive">ARCHIVES</a>
+      <!-- The menus come from the branding's league.json (see docs/branding.md).
+           An entry with "redirect": true sends the page's redirect_url along, for a login link. -->
+      {{#mainMenu}}
+      <a class="dropdown-item" href="{{{href}}}{{#redirect}}{{#redirect_url}}?redirect_url={{.}}{{/redirect_url}}{{/redirect}}">{{label}}</a>
+      {{/mainMenu}}
     </div>
   </div>
 
+  {{#hasPlayerMenu}}
   <div class="btn-group" style="width: 300px;">
     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <img src="/icon_128.png" width="0" height="38" /><span class="px-1 text-uppercase">
@@ -75,15 +67,12 @@ http://webdesignerwall.com/tutorials/css-responsive-navigation-menu
       </span>
     </button>
     <div class="dropdown-menu">
-      <a class="dropdown-item" href="/mymatch">MY MATCH</a>
-      <a class="dropdown-item" href="/myteam">MY TEAM</a>
-      <a class="dropdown-item" href="/profile">MY ACCOUNT</a>
-      <a class="dropdown-item" href="/signup">ACCOUNT SIGN-UP</a>
-      <a class="dropdown-item" href="/NEWPLAYERS">NEW PLAYER INFORMATION</a>
-      <a class="dropdown-item" href="/CONDUCT">REPORT PLAYER CONDUCT</a>
-      <a class="dropdown-item" href="http://pinballstats.info/search/">PLAYER LOOKUP</a>
+      {{#playerMenu}}
+      <a class="dropdown-item" href="{{{href}}}{{#redirect}}{{#redirect_url}}?redirect_url={{.}}{{/redirect_url}}{{/redirect}}">{{label}}</a>
+      {{/playerMenu}}
     </div>
   </div>
+  {{/hasPlayerMenu}}
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
@@ -95,7 +84,7 @@ http://webdesignerwall.com/tutorials/css-responsive-navigation-menu
 </div>
 <div style="color: white;">
 <center>
-&copy;2019-2026 Monday Night Pinball
+{{#brand.copyright}}&copy;{{brand.copyright}}{{/brand.copyright}}
 </center>
 </div>
 

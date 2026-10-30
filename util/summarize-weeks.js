@@ -6,7 +6,7 @@ const DATA_FOLDER = config.DATA_FOLDER;
 
 
 // match.key format: mnp-{season}-{week}-{away}-{home}
-const pattern = /^mnp-(\d+)-(\d+)/; //-(\w+)-(\w+)/;
+const pattern = new RegExp('^' + require('../lib/branding').matchKeyPrefix + '-(\\d+)-(\\d+)');
 
 const weeks = matches
   .reduce((weeks, match) => {
