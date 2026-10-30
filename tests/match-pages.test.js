@@ -6,8 +6,9 @@
    (tests/match-pages-five.test.js sets it).
 */
 const fivePlayer = !!process.env.FIVE_PLAYER_PAGES
-if (fivePlayer) process.env.MATCH_FORMAT = 'five-player'
+process.env.MATCH_FORMAT = fivePlayer ? 'five-player' : 'ten-player'
 
+process.env.BRANDING_FOLDER = require('node:path').join(__dirname, '..', 'branding', 'example')
 const { describe, it, after } = require('node:test')
 const assert = require('node:assert/strict')
 const request = require('supertest')

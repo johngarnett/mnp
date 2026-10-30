@@ -5,7 +5,9 @@
 */
 const fixture = require('../helpers/fixture')
 
-const SCENARIOS = []
+const SCENARIOS = [
+   require('../helpers/pages-scenario')
+]
 const DEFAULT_PORT = 6943
 const port = Number(process.env.E2E_PORT) || DEFAULT_PORT
 

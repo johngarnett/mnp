@@ -6,6 +6,7 @@
 */
 process.env.MATCH_FORMAT = 'five-player'
 
+process.env.BRANDING_FOLDER = require('node:path').join(__dirname, '..', 'branding', 'example')
 const { describe, it, after } = require('node:test')
 const assert = require('node:assert/strict')
 const fixture = require('./helpers/fixture')

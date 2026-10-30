@@ -9,6 +9,9 @@
 
    To re-capture after an intentional rule change: GOLDEN_UPDATE=1 npm test
 */
+process.env.MATCH_FORMAT = 'ten-player'
+
+process.env.BRANDING_FOLDER = require('node:path').join(__dirname, '..', 'branding', 'example')
 const { describe, it, after } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')

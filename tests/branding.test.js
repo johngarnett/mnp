@@ -4,6 +4,7 @@
    and footer from it, content pages and static files come from the folder,
    emails use its names and addresses, and league match keys use its prefix.
 */
+process.env.BRANDING_FOLDER = require('node:path').join(__dirname, '..', 'branding', 'example')
 const { describe, it, before, after } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')

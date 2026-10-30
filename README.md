@@ -5,6 +5,17 @@
 As of January 23rd, 2018, the MNP main codebase is now open source, under Gnu Public License (GPL).
 Visit the live site at: [https://www.mondaynightpinball.com](https://www.mondaynightpinball.com)
 
+The server runs any league: the match rules, the league's branding and the way
+it is deployed are three separate settings.
+
+| Setting | Values | Docs |
+|---|---|---|
+| `MATCH_FORMAT` | `ten-player` (MNP, default) or `five-player`; one file per format in `lib/formats/` | [docs/formats.md](docs/formats.md) |
+| `BRANDING_FOLDER`, `BRANDING_URL`, `PUBLIC_URL` | a checkout of the league's branding repository (names, menus, home page, rules pages, emails, icons); `branding/example` by default | [docs/branding.md](docs/branding.md) |
+| `TLS`, `PORT`, `TRUST_PROXY` | `TLS=internal` serves HTTPS itself from `CREDENTIALS_FOLDER` (443, with 80 redirecting); `TLS=proxy` serves plain HTTP on `PORT` behind Apache or nginx, with `TRUST_PROXY` (for example `loopback`) so the app sees the original scheme | `lib/server.js` |
+
+`.env.example` lists every variable. Tests: [docs/testing.md](docs/testing.md).
+
 ## Easy Installation
 
 On a fresh machine, this is the minimum to allow the MNP web site to run.
@@ -163,9 +174,10 @@ TODO: Add more details/resources on how to setup the gmail token.
 
 ### SSL settings
 
-If you want to run a secure server, you will need to setup a certificate file.
-`.credentials/https.opts.mnp.json`
-TODO: Add more details/resources on how to setup the certificate.
+With `TLS=internal` (the default) the server reads `privkey.pem`, `cert.pem`
+and `chain.pem` from `CREDENTIALS_FOLDER` (a Let's Encrypt live folder has
+exactly these). With `TLS=proxy` it serves plain HTTP on `PORT` and the proxy
+in front of it holds the certificate.
 
 ## League Operation
 
@@ -197,16 +209,16 @@ node run util/compute-stats
 
 To get things running, you can run one of the following commands:
 ```
-# Start just HTTP (you will need to have sudo/root access)
-node http.js
-
-# Start just in HTTPS (you will need to have sudo/root
-# as well as the necessary certificate config)
-node https.js
-
-# Start the service on both 80 and 443, with a redirect to 443
-# This is what the website uses (after some service wrapping).
+# HTTPS on 443 with a redirect from 80 (TLS=internal, the default;
+# needs the certificate files and root access).
 node app.js
+
+# Plain HTTP behind a reverse proxy that terminates TLS.
+TLS=proxy PORT=6942 TRUST_PROXY=loopback node app.js
+
+# The same two, as shortcuts.
+node https.js
+node http.js
 ```
 
 If you are interested in how to wrap up the app to run as a service, we use `forever` and `forever-service`, both npm modules and not too hard to setup.

@@ -6,6 +6,7 @@
 process.env.TLS = 'proxy'
 process.env.TRUST_PROXY = 'loopback'
 
+process.env.BRANDING_FOLDER = require('node:path').join(__dirname, '..', 'branding', 'example')
 const { describe, it, after } = require('node:test')
 const assert = require('node:assert/strict')
 const http = require('node:http')

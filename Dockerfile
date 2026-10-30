@@ -4,18 +4,27 @@ WORKDIR /usr/src/app
 
 # These should be part of docker compose, or passed on the docker run command line
 ENV CREDENTIALS_FOLDER=/usr/src/credentials
-ENV CURRENT_SEASON=season-24
+ENV CURRENT_SEASON=season-0
 ENV NUM_WEEKS=10
 ENV DATA_FOLDER=/usr/src/data
 ENV IFPA_API_KEY=??
-ENV LEAGUE_ADMINS=7199,9af5bad1f0900f70b25d6ef8ca8b55b5cf47d6af,58e3994c9c84b18915de0fcec5208d08e4acb3c7
+ENV LEAGUE_ADMINS=admin
 ENV TEST_EMAIL_ADDRESS=??
 ENV UPLOADS_FOLDER=/usr/src/data/uploads
 
-ENV EMAIL_HOST=smtp.gmail.com
+# The league: match rules, branding checkout, deployment (see README)
+ENV MATCH_FORMAT=ten-player
+ENV BRANDING_FOLDER=/usr/src/branding
+# ENV BRANDING_URL=
+# ENV PUBLIC_URL=
+ENV TLS=internal
+# ENV PORT=
+# ENV TRUST_PROXY=
+
+ENV EMAIL_HOST=smtp.example.com
 ENV EMAIL_PORT=587
-ENV EMAIL_ADDRESS=seattlemnp.donotreply@gmail.com
-ENV EMAIL_NAME=SeattleMNP.DoNotReply
+ENV EMAIL_ADDRESS=noreply@example.com
+ENV EMAIL_NAME=Example League
 # email password need to be passed on the docker commandline
 # ENV EMAIL_PASSWORD=
 
