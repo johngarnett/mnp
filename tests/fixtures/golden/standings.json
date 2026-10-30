@@ -1,0 +1,144 @@
+[
+  [
+    {
+      "key": "SNH",
+      "n": 1,
+      "wins": [
+        "SNA"
+      ],
+      "losses": [],
+      "ties": [],
+      "points": 58,
+      "pops": "0.580",
+      "countOfMatches": 1
+    },
+    {
+      "key": "FTH",
+      "n": 2,
+      "wins": [
+        "FTA"
+      ],
+      "losses": [],
+      "ties": [],
+      "points": 63,
+      "pops": "0.562",
+      "countOfMatches": 1
+    },
+    {
+      "key": "NEH",
+      "n": 3,
+      "wins": [
+        "NEA"
+      ],
+      "losses": [],
+      "ties": [],
+      "points": 54,
+      "pops": "0.562",
+      "countOfMatches": 1
+    },
+    {
+      "key": "PAH",
+      "n": 4,
+      "wins": [
+        "PAA"
+      ],
+      "losses": [],
+      "ties": [],
+      "points": 60,
+      "pops": "0.550",
+      "countOfMatches": 1
+    },
+    {
+      "key": "TMA",
+      "n": 5,
+      "wins": [],
+      "losses": [],
+      "ties": [
+        "TMH"
+      ],
+      "points": 55,
+      "pops": "0.500",
+      "countOfMatches": 1
+    },
+    {
+      "key": "TMH",
+      "n": 6,
+      "wins": [],
+      "losses": [],
+      "ties": [
+        "TMA"
+      ],
+      "points": 55,
+      "pops": "0.500",
+      "countOfMatches": 1
+    },
+    {
+      "key": "PAA",
+      "n": 7,
+      "wins": [],
+      "losses": [
+        "PAH"
+      ],
+      "ties": [],
+      "points": 49,
+      "pops": "0.449",
+      "countOfMatches": 1
+    },
+    {
+      "key": "FTA",
+      "n": 8,
+      "wins": [],
+      "losses": [
+        "FTH"
+      ],
+      "ties": [],
+      "points": 49,
+      "pops": "0.437",
+      "countOfMatches": 1
+    },
+    {
+      "key": "NEA",
+      "n": 9,
+      "wins": [],
+      "losses": [
+        "NEH"
+      ],
+      "ties": [],
+      "points": 42,
+      "pops": "0.437",
+      "countOfMatches": 1
+    },
+    {
+      "key": "SNA",
+      "n": 10,
+      "wins": [],
+      "losses": [
+        "SNH"
+      ],
+      "ties": [],
+      "points": 42,
+      "pops": "0.420",
+      "countOfMatches": 1
+    },
+    {
+      "key": "MMA",
+      "n": 11,
+      "wins": [],
+      "losses": [],
+      "ties": [],
+      "points": 0,
+      "pops": 0,
+      "countOfMatches": 0
+    },
+    {
+      "key": "MMH",
+      "n": 12,
+      "wins": [],
+      "losses": [],
+      "ties": [],
+      "points": 0,
+      "pops": 0,
+      "countOfMatches": 0
+    }
+  ]
+]

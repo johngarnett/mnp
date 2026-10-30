@@ -1,0 +1,551 @@
+{
+  "state": "complete",
+  "round": 4,
+  "isDone": true,
+  "points": {
+    "home": 63,
+    "away": 49,
+    "rounds": [
+      {
+        "n": 1,
+        "home": 10,
+        "away": 10
+      },
+      {
+        "n": 2,
+        "home": 15,
+        "away": 6
+      },
+      {
+        "n": 3,
+        "home": 9,
+        "away": 12
+      },
+      {
+        "n": 4,
+        "home": 15,
+        "away": 5
+      }
+    ],
+    "bonus": {
+      "home": {
+        "participation": 9,
+        "handicap": 5
+      },
+      "away": {
+        "participation": 9,
+        "handicap": 7
+      }
+    }
+  },
+  "away": [
+    {
+      "name": "FTA P01",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P02",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P03",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P04",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P05",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P06",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P07",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P08",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P09",
+      "num_played": 3
+    },
+    {
+      "name": "FTA P10",
+      "num_played": 3
+    }
+  ],
+  "home": [
+    {
+      "name": "FTH P01",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P02",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P03",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P04",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P05",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P06",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P07",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P08",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P09",
+      "num_played": 3
+    },
+    {
+      "name": "FTH P10",
+      "num_played": 3
+    }
+  ],
+  "rounds": [
+    {
+      "n": 1,
+      "done": true,
+      "games": [
+        {
+          "machine": "TAF",
+          "player_1": "fe76d6fd70da6bf748b67cbc5c440f363706d012",
+          "player_2": "9867ca264174e251a168d19660c28ec591534afe",
+          "player_3": "4c8593aeacf40ed8f584457761c8dbe7d1c7bd7d",
+          "player_4": "98b22fed2d43c1dec8da66a7843298d212519f11",
+          "score_1": 2000,
+          "score_2": 7000,
+          "score_3": 3000,
+          "score_4": 8000,
+          "points_1": 0,
+          "points_2": 2.5,
+          "points_3": 0,
+          "points_4": 2.5,
+          "score_13": 5000,
+          "score_24": 15000,
+          "points_13": 0,
+          "points_24": 5,
+          "away_points": 0,
+          "home_points": 5,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "66f87633574d5474013e0fd186b01253afb6df51",
+          "player_2": "d16a5ad9125ef6629f6084abbbfb6a92c7a14048",
+          "player_3": "5b069a7537b53bb801cdf3324b72cfae51cf0b19",
+          "player_4": "b2b00fba96705dc936892bc351ebc9139fbc9210",
+          "score_1": 5000,
+          "score_2": 1000,
+          "score_3": 6000,
+          "score_4": 2000,
+          "points_1": 2.5,
+          "points_2": 0,
+          "points_3": 2.5,
+          "points_4": 0,
+          "score_13": 11000,
+          "score_24": 3000,
+          "points_13": 5,
+          "points_24": 0,
+          "away_points": 5,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "340a803b0ef84d9c6777eebd4be366242ba10db8",
+          "player_2": "b83dbbfcb5ea480b05774ef66346dff90c3a0277",
+          "player_3": "7a61e5e5e92d54942cb3f136310184d8f2da8d84",
+          "player_4": "3a5eafd5a068df729ca2d6f9a86e807c2f7ff20b",
+          "score_1": 8000,
+          "score_2": 4000,
+          "score_3": 9000,
+          "score_4": 5000,
+          "points_1": 2.5,
+          "points_2": 0,
+          "points_3": 2.5,
+          "points_4": 0,
+          "score_13": 17000,
+          "score_24": 9000,
+          "points_13": 5,
+          "points_24": 0,
+          "away_points": 5,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "HOO",
+          "player_1": "487d5f3a69ce1c392cc9182dcc3001955677d469",
+          "player_2": "a8e92e817bd8db481a69c7e4eb6187d792fada0d",
+          "player_3": "635dda5151b0507db78ab730fa0baf0a58219d75",
+          "player_4": "48ac44c6c45042d7ccdc7d7ee80ad82c43986d5a",
+          "score_1": 2000,
+          "score_2": 7000,
+          "score_3": 3000,
+          "score_4": 8000,
+          "points_1": 0,
+          "points_2": 2.5,
+          "points_3": 0,
+          "points_4": 2.5,
+          "score_13": 5000,
+          "score_24": 15000,
+          "points_13": 0,
+          "points_24": 5,
+          "away_points": 0,
+          "home_points": 5,
+          "done": true
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "done": true,
+      "games": [
+        {
+          "machine": "TAF",
+          "player_1": "7a4f4aa970cbc6afe477dc4b59b0c75ae9f9fafe",
+          "player_2": "b874c7cfaccdce8eb6a57a87e1bcc74ee034e7b0",
+          "score_1": 8000,
+          "score_2": 4000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 8000,
+          "score_24": 4000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "a3351913ff677d5a527cd19d0956ba323f83073f",
+          "player_2": "ceae4c17fabacf4ad7ed2a5764d522df6cf65e16",
+          "score_1": 2000,
+          "score_2": 7000,
+          "points_1": 0,
+          "points_2": 3,
+          "score_13": 2000,
+          "score_24": 7000,
+          "points_13": 0,
+          "points_24": 3,
+          "away_points": 3,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "9867ca264174e251a168d19660c28ec591534afe",
+          "player_2": "fe76d6fd70da6bf748b67cbc5c440f363706d012",
+          "score_1": 5000,
+          "score_2": 1000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 5000,
+          "score_24": 1000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "HOO",
+          "player_1": "98b22fed2d43c1dec8da66a7843298d212519f11",
+          "player_2": "4c8593aeacf40ed8f584457761c8dbe7d1c7bd7d",
+          "score_1": 8000,
+          "score_2": 4000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 8000,
+          "score_24": 4000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "TAF",
+          "player_1": "d16a5ad9125ef6629f6084abbbfb6a92c7a14048",
+          "player_2": "66f87633574d5474013e0fd186b01253afb6df51",
+          "score_1": 2000,
+          "score_2": 7000,
+          "points_1": 0,
+          "points_2": 3,
+          "score_13": 2000,
+          "score_24": 7000,
+          "points_13": 0,
+          "points_24": 3,
+          "away_points": 3,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "b2b00fba96705dc936892bc351ebc9139fbc9210",
+          "player_2": "5b069a7537b53bb801cdf3324b72cfae51cf0b19",
+          "score_1": 5000,
+          "score_2": 1000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 5000,
+          "score_24": 1000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "b83dbbfcb5ea480b05774ef66346dff90c3a0277",
+          "player_2": "340a803b0ef84d9c6777eebd4be366242ba10db8",
+          "score_1": 8000,
+          "score_2": 4000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 8000,
+          "score_24": 4000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "done": true,
+      "games": [
+        {
+          "machine": "TAF",
+          "player_1": "7a61e5e5e92d54942cb3f136310184d8f2da8d84",
+          "player_2": "3a5eafd5a068df729ca2d6f9a86e807c2f7ff20b",
+          "score_1": 9000,
+          "score_2": 5000,
+          "points_1": 2,
+          "points_2": 1,
+          "score_13": 9000,
+          "score_24": 5000,
+          "points_13": 2,
+          "points_24": 1,
+          "away_points": 2,
+          "home_points": 1,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "487d5f3a69ce1c392cc9182dcc3001955677d469",
+          "player_2": "a8e92e817bd8db481a69c7e4eb6187d792fada0d",
+          "score_1": 3000,
+          "score_2": 8000,
+          "points_1": 0,
+          "points_2": 3,
+          "score_13": 3000,
+          "score_24": 8000,
+          "points_13": 0,
+          "points_24": 3,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "635dda5151b0507db78ab730fa0baf0a58219d75",
+          "player_2": "48ac44c6c45042d7ccdc7d7ee80ad82c43986d5a",
+          "score_1": 6000,
+          "score_2": 2000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 6000,
+          "score_24": 2000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 3,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "HOO",
+          "player_1": "b874c7cfaccdce8eb6a57a87e1bcc74ee034e7b0",
+          "player_2": "7a4f4aa970cbc6afe477dc4b59b0c75ae9f9fafe",
+          "score_1": 9000,
+          "score_2": 5000,
+          "points_1": 2,
+          "points_2": 1,
+          "score_13": 9000,
+          "score_24": 5000,
+          "points_13": 2,
+          "points_24": 1,
+          "away_points": 2,
+          "home_points": 1,
+          "done": true
+        },
+        {
+          "machine": "TAF",
+          "player_1": "ceae4c17fabacf4ad7ed2a5764d522df6cf65e16",
+          "player_2": "a3351913ff677d5a527cd19d0956ba323f83073f",
+          "score_1": 3000,
+          "score_2": 8000,
+          "points_1": 0,
+          "points_2": 3,
+          "score_13": 3000,
+          "score_24": 8000,
+          "points_13": 0,
+          "points_24": 3,
+          "away_points": 0,
+          "home_points": 3,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "fe76d6fd70da6bf748b67cbc5c440f363706d012",
+          "player_2": "9867ca264174e251a168d19660c28ec591534afe",
+          "score_1": 6000,
+          "score_2": 2000,
+          "points_1": 3,
+          "points_2": 0,
+          "score_13": 6000,
+          "score_24": 2000,
+          "points_13": 3,
+          "points_24": 0,
+          "away_points": 3,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "4c8593aeacf40ed8f584457761c8dbe7d1c7bd7d",
+          "player_2": "98b22fed2d43c1dec8da66a7843298d212519f11",
+          "score_1": 9000,
+          "score_2": 5000,
+          "points_1": 2,
+          "points_2": 1,
+          "score_13": 9000,
+          "score_24": 5000,
+          "points_13": 2,
+          "points_24": 1,
+          "away_points": 2,
+          "home_points": 1,
+          "done": true
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "done": true,
+      "games": [
+        {
+          "machine": "TAF",
+          "player_1": "d16a5ad9125ef6629f6084abbbfb6a92c7a14048",
+          "player_2": "66f87633574d5474013e0fd186b01253afb6df51",
+          "player_3": "b2b00fba96705dc936892bc351ebc9139fbc9210",
+          "player_4": "5b069a7537b53bb801cdf3324b72cfae51cf0b19",
+          "score_1": 5000,
+          "score_2": 1000,
+          "score_3": 6000,
+          "score_4": 2000,
+          "points_1": 2.5,
+          "points_2": 0,
+          "points_3": 2.5,
+          "points_4": 0,
+          "score_13": 11000,
+          "score_24": 3000,
+          "points_13": 5,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 5,
+          "done": true
+        },
+        {
+          "machine": "MM",
+          "player_1": "b83dbbfcb5ea480b05774ef66346dff90c3a0277",
+          "player_2": "340a803b0ef84d9c6777eebd4be366242ba10db8",
+          "player_3": "3a5eafd5a068df729ca2d6f9a86e807c2f7ff20b",
+          "player_4": "7a61e5e5e92d54942cb3f136310184d8f2da8d84",
+          "score_1": 8000,
+          "score_2": 4000,
+          "score_3": 9000,
+          "score_4": 5000,
+          "points_1": 2.5,
+          "points_2": 0,
+          "points_3": 2.5,
+          "points_4": 0,
+          "score_13": 17000,
+          "score_24": 9000,
+          "points_13": 5,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 5,
+          "done": true
+        },
+        {
+          "machine": "AFM",
+          "player_1": "a8e92e817bd8db481a69c7e4eb6187d792fada0d",
+          "player_2": "487d5f3a69ce1c392cc9182dcc3001955677d469",
+          "player_3": "48ac44c6c45042d7ccdc7d7ee80ad82c43986d5a",
+          "player_4": "635dda5151b0507db78ab730fa0baf0a58219d75",
+          "score_1": 2000,
+          "score_2": 7000,
+          "score_3": 3000,
+          "score_4": 8000,
+          "points_1": 0,
+          "points_2": 2.5,
+          "points_3": 0,
+          "points_4": 2.5,
+          "score_13": 5000,
+          "score_24": 15000,
+          "points_13": 0,
+          "points_24": 5,
+          "away_points": 5,
+          "home_points": 0,
+          "done": true
+        },
+        {
+          "machine": "HOO",
+          "player_1": "7a4f4aa970cbc6afe477dc4b59b0c75ae9f9fafe",
+          "player_2": "b874c7cfaccdce8eb6a57a87e1bcc74ee034e7b0",
+          "player_3": "a3351913ff677d5a527cd19d0956ba323f83073f",
+          "player_4": "ceae4c17fabacf4ad7ed2a5764d522df6cf65e16",
+          "score_1": 5000,
+          "score_2": 1000,
+          "score_3": 6000,
+          "score_4": 2000,
+          "points_1": 2.5,
+          "points_2": 0,
+          "points_3": 2.5,
+          "points_4": 0,
+          "score_13": 11000,
+          "score_24": 3000,
+          "points_13": 5,
+          "points_24": 0,
+          "away_points": 0,
+          "home_points": 5,
+          "done": true
+        }
+      ]
+    }
+  ]
+}
