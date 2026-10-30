@@ -57,7 +57,7 @@ The server, match format and deployment are separate settings; see the README.
 | `publicUrl` | See `PUBLIC_URL`. |
 | `contactEmail` | Shown where pages tell players how to reach the league (`{{brand.contactEmail}}` in templates). |
 | `conductEmail` | Where the Report Player Conduct form is sent. Without it, reports are logged and dropped. |
-| `emailName` | Not read by the server yet; `EMAIL_NAME` in the environment names the sender. |
+| `emailName` | The sender's display name on emails, unless `EMAIL_NAME` is set in the environment. |
 | `emailSubjects` | Subjects of the verification and password-reset emails. Default: `<shortName> - Confirm Email` and `<shortName> - Reset Password`. |
 | `mainMenu` | The upper-left menu: `label` and `href` per entry. `"redirect": true` appends the page's `redirect_url` to the link (for a login entry). |
 | `playerMenu` | The upper-right PLAYER menu, shown with the player's first name when logged in, or `null` for a single menu. |
