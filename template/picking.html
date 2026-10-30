@@ -3,14 +3,6 @@
 {{#errors}}
 <span style="color:red;font-weight:bold;">{{.}}</span><br>
 {{/errors}}
-{{#shared}}
-<b>
-  TIE-BREAKER! Please make picks on paper, as described in
-  <a href="/rules">MNP RULES</a>. Then, have home team
-  enter all the machines and their players. Then, have away
-  team enter their players. Home team will play first in each game.
-</b>
-{{/shared}}
 <!-- {{role}} -->
 <b>Picking: {{team_name}}</b>
 <br>
@@ -102,17 +94,6 @@ console.log('games['+i+']: ',game);
   chunk += labels[game.player_1] || 'Player 1';
   {{/editable}}
   chunk += '</td></tr>';
-
-  {{#shared}}
-  chunk += '<tr><td>';
-  {{#editable}}
-  chunk += makeSelect('player_3.'+game.n, 'Shared Partner', players, game.player_3);
-  {{/editable}}
-  {{^editable}}
-  chunk += labels[game.player_3] || 'Shared Partner';
-  {{/editable}}
-  chunk += '</td></tr>';
-  {{/shared}}
 
   {{#doubles}}
   chunk += '<tr><td>';

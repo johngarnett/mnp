@@ -4,6 +4,9 @@
    made configurable (lib/formats), so they prove that scoring, bonus, handicap,
    games-played counts, completion and standings are unchanged for MNP.
 
+   The one shape change since the capture is points.tieBreaker (null here, since
+   this format has no tie-breaker), added to the snapshots by hand.
+
    To re-capture after an intentional rule change: GOLDEN_UPDATE=1 npm test
 */
 const { describe, it, after } = require('node:test')

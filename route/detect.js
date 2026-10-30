@@ -10,6 +10,7 @@ var util = require('../lib/util');
 const photos = require('../lib/photos');
 const scoreService = require('../lib/score-service');
 var matches = require('../model/matches');
+const format = require('../lib/formats');
 
 const HTTP_BAD_REQUEST = 400;
 const HTTP_FORBIDDEN = 403;
@@ -79,7 +80,7 @@ router.post('/games/:key.:round.:n/detect', function(req,res) {
   }
 
   //Send the stored framing exactly as saved (all four or none), per the guide.
-  var params = { playerCount: matches.NUM_SCORES[round-1] };
+  var params = { playerCount: format.roundSpec(round).playersPerGame };
   if(photo.rot !== undefined && photo.scale !== undefined && photo.dx !== undefined && photo.dy !== undefined) {
     params.rot = photo.rot;
     params.scale = photo.scale;

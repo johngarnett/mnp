@@ -76,7 +76,7 @@ $(document).ready(function() {
 {{/captains}}
 </table>
 
-Lineup: {{lineup.length}} / Players IPR: {{team_rating}} / Expected HCP: {{team_handicap}} pts
+Lineup: {{lineup.length}} / Players IPR: {{team_rating}}{{#has_handicap}} / Expected HCP: {{team_handicap}} pts{{/has_handicap}}
 <table class="table">
 <tr class="header-row">
 <td class="text-xs-center">IPR</td>

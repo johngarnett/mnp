@@ -10,6 +10,8 @@ const matches = require('../model/matches'); //For standings
 const players = require('../model/players');
 const stats = require('../model/stats');
 const IPR = require('../model/ratings');
+const format = require('../lib/formats');
+const handicap = require('../lib/handicap');
 const { ROOT } = require('../constants');
 const config = require('../config');
 
@@ -147,12 +149,11 @@ router.get('/teams/:team_id',function(req,res) {
       const points = match.getPoints();
       //result -> '(W|L) team.score - opp.score'
       if(match.isDone()) {
-        if(points.home == points.away) {
+        const winner = match.getResult();
+        if(winner == 'tie') {
           result = 'T'
         } else {
-          result = isHome ?
-            ((points.home > points.away) ? 'W' : 'L') :
-            ((points.away > points.home) ? 'W' : 'L');
+          result = (winner == (isHome ? 'home' : 'away')) ? 'W' : 'L';
         }
       }
       else {
@@ -180,7 +181,7 @@ router.get('/teams/:team_id',function(req,res) {
     };
   });
 
-  let teamHandicap = expectedHcp(teamRating, lineup);
+  let teamHandicap = handicap.expected(lineup, format);
 
   const ukey = req.user.key || 'ANON';
   const html = mustache.render(base,{
@@ -196,6 +197,7 @@ router.get('/teams/:team_id',function(req,res) {
     co_captain: team.co_captain,
     team_rating: teamRating,
     team_handicap: teamHandicap,
+    has_handicap: format.handicap.enabled,
     roster: lineup,
     schedule: weeks,
     sugs: JSON.stringify(getSuggestions(), null, 2),
@@ -281,47 +283,5 @@ router.post('/teams/:team_id/roster/remove', function(req,res) {
   // TODO: Redirect with a success msg (but first need to support messages)
   res.redirect(`/teams/${team.key}`);
 });
-
-function iprForPlayer(player) {
-  if (!player) {
-    return 0;
-  }
-  if(Number.isFinite(player.IPR)) {
-    return Math.max(1, player.IPR);
-  }
-  return Math.max(1, player.rating);
-}
-
-function expectedHcp(teamRating, lineup) {
-  if(lineup.length == 10) {
-    return Math.trunc((50-teamRating)/2);
-  }
-
-  lineup.sort((a, b) => iprForPlayer(b) - iprForPlayer(a));
-
-  var teamIPR = 0;
-  for(i in lineup) {
-    var p = lineup[i];
-    teamIPR += p.rating;
-  }
-  if(lineup.length == 9) {
-    var p0 = iprForPlayer(lineup[0]);
-    var p1 = iprForPlayer(lineup[1]);
-    var p2 = iprForPlayer(lineup[2]);
-    teamIPR += (p0 + p1 + p2)/3;
-  }
-  if(lineup.length == 8) {
-    var p0 = iprForPlayer(lineup[0]);
-    var p1 = iprForPlayer(lineup[1]);
-    var p2 = iprForPlayer(lineup[2]);
-    teamIPR += (p0 + p1 + p2)/3;
-    var p3 = iprForPlayer(lineup[3]);
-    var p4 = iprForPlayer(lineup[4]);
-    var p5 = iprForPlayer(lineup[5]);
-    teamIPR += (p3 + p4 + p5)/3;
-  }
-
-  return Math.trunc((50-teamIPR)/2);
-}
 
 module.exports = router;

@@ -686,11 +686,6 @@ function setValues() {
   $('#p24').text(numeral(game.points_24).format('0.0'));
   {{/doubles}}
 
-  {{#shared}}
-  $('#p3').text(labels[game.player_3]);
-  $('#p4').text(labels[game.player_4]);
-  {{/shared}}
-
   imageChanged = false;
   posChanged = false;
   scoreChanged = false;

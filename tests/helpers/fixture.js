@@ -51,6 +51,7 @@ function setup(options = {}) {
    DATA_DIRS.forEach(dir => fs.mkdirSync(path.join(dataFolder, dir), { recursive: true }))
    EMPTY_FILES.forEach(file => fs.writeFileSync(path.join(dataFolder, file), ''))
    fs.mkdirSync(path.join(dataFolder, TEST_SEASON, 'matches'), { recursive: true })
+   fs.mkdirSync(path.join(dataFolder, TEST_SEASON, 'stats'), { recursive: true })
 
    const ratings = [{ name: ADMIN_NAME, ipr: ADMIN_IPR }, ...(options.ratings || [])]
    fs.writeFileSync(path.join(dataFolder, 'IPR.csv'), ratings.map(r => `${r.ipr},${r.name}\n`).join(''))

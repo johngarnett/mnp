@@ -97,12 +97,6 @@ for(var i = 0; i < games.length; i++) {
   chunk += '<td colspan="2">' +labels[game.player_2]+ '</td>';
   chunk += '</tr>';
 
-{{#shared}}
-  chunk += '<tr>';
-  chunk += '<td colspan="2">' +labels[game.player_3]+ '</td>';
-  chunk += '<td colspan="2">' +labels[game.player_4]+ '</td>';
-  chunk += '</tr>';
-{{/shared}}
 {{#doubles}}
   chunk += '<tr>';
   chunk += '<td style="text-align:right;">' +makeNum(game.score_1)+ '</td>';

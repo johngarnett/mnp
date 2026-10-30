@@ -10,28 +10,26 @@ const stem = DATA_FOLDER  + '/' + config.CURRENT_SEASON
 // TODO: Refactor in conjunction with splitting venues.js
 var venues = require('./venues');
 
-var NUM_GAMES   = [4,7,7,4,3];
-var NUM_PLAYERS = [4,2,2,4,4];
-var NUM_SCORES  = [4,2,2,4,2];
+//The match format (rounds, lineup limits, bonus, handicap, tie-breaker) is
+//configuration: see lib/formats and docs/formats.md.
+const format = require('../lib/formats');
+const scoring = require('../lib/scoring');
+const handicap = require('../lib/handicap');
 
+//The regular rounds of a new match. The tie-breaker round, for formats that
+//have one, is added by confirmScores when the match is tied after the last
+//regular round.
 function makeRounds() {
-  var rounds = [
-    makeRound(1),
-    makeRound(2),
-    makeRound(3),
-    makeRound(4)
-  ];
-  return rounds;
+  return format.rounds.map((spec, i) => makeRound(i + 1, spec));
 }
 
-function makeRound(n) {
+function makeRound(n, spec) {
   var round = {
     n: n,
     games: []
   };
 
-  var num = NUM_GAMES[n-1];
-  for(var j = 0; j < num; j++) {
+  for(var j = 0; j < spec.games; j++) {
     round.games[j] = { n: j+1 };
     //TODO: Move roundDone here as round.isDone
   }
@@ -247,16 +245,6 @@ function Team(params) {
   }));
 }
 
-function iprForPlayer(player) {
-  if (!player) {
-    return 0;
-  }
-  if(Number.isFinite(player.IPR)) {
-    return Math.max(1, player.IPR);
-  }
-  return Math.max(1, player.rating);
-}
-
 Team.prototype = {
   constructor: Team,
   /** Admins and captains can invite */
@@ -274,87 +262,18 @@ Team.prototype = {
       canJoin: ukey != 'ANON'
     }
   },
-  getCalculatedTeamIPR: function(lineup) {
-    var teamIPR = 0;
-    lineup.sort((a, b) => iprForPlayer(b) - iprForPlayer(a));
+  //The participation bonus and handicap (lib/handicap.js) for this team.
+  //Neither is awarded until every regular-round game has been played, so
+  //getPoints passes whether that is the case.
+  getBonus: function(allGamesPlayed) {
+    var bonus = { participation: 0, handicap: 0 };
+    if(!allGamesPlayed) return bonus;
 
-    for(i in lineup) {
-      var p = this.lineup[i];
-      teamIPR += iprForPlayer(p);
-    }
-    if(lineup.length > 2 && lineup.length < 10) {
-      var p0 = iprForPlayer(lineup[0]);
-      var p1 = iprForPlayer(lineup[1]);
-      var p2 = iprForPlayer(lineup[2]);
-      teamIPR += (p0 + p1 + p2)/3;
-    }
-    if(lineup.length > 5 && lineup.length < 9) {
-      var p3 = iprForPlayer(lineup[3]);
-      var p4 = iprForPlayer(lineup[4]);
-      var p5 = iprForPlayer(lineup[5]);
-      teamIPR += (p3 + p4 + p5)/3;
-    }
-    return teamIPR;
-  },
-  getBonus: function() {
-    var bonus = { participation: 0, handicap: 0 }
-    var handicap = 0;
-    var playerRounds = 0; // At the end of the match, there are 30 player rounds: 8 + 7 + 7 + 8.
-    var playerRoundsIPR = 0;
-    var numPlayersInLineup = this.lineup.length;
-    var played0Rounds = 0;
-    var played1Round = 0;
-    var played3Rounds = 0; // 3 or more
-    var teamIPR = this.getCalculatedTeamIPR(this.lineup);// If 10 players, then calculated IPR == sum of player IPR
-
-    for(i in this.lineup) {
-      var p = this.lineup[i];
-      var n = p.num_played || 0;
-      playerRounds += n;
-      playerRoundsIPR += (n * iprForPlayer(p));
-      if(n >= 3) played3Rounds++;
-      if(n == 1) played1Round++;
-      if(n == 0) played0Rounds++;
-    }
-    // For now, no bonus or handicap points until the end of the match.
-    // This doesn't really change how we calculate the handicap points.
-    if(playerRounds < 30) {
-      return bonus;
-    }
-
-    if(playerRounds == 0) {
-      return bonus;
-    }
-    if(playerRounds<15) {
-        handicap = (50 - teamIPR)/2;
-    }
-    if(numPlayersInLineup==10) {
-      if(playerRounds<22 && played0Rounds==0) {
-        handicap = (50 - teamIPR)/2;
-      } else if(playerRounds<30 && played0Rounds==0 && played1Round==0) {
-        handicap = (50 - teamIPR)/2;
-      } else if(playerRounds==30 && played3Rounds==10) {
-        handicap = (50 - teamIPR)/2;
-      }
-    }
-    if(handicap == 0) {
-      var teamIPRpartialMatch = (playerRoundsIPR * 10)/playerRounds;
-      handicap = (50 - teamIPRpartialMatch)/2;
-    }
-
-    handicap *= playerRounds/30;
-    handicap = Math.trunc(handicap);
-    handicap = Math.max(handicap, 0);
-    handicap = Math.min(handicap, 15);
-
-    //TODO: Bonus points depend on the season's rules.
-    if(played3Rounds == 10) {
-      bonus.participation = 9;
-    }
-    if(played3Rounds ==  9) {
-      bonus.participation = 4;
-    }
-    bonus.handicap = handicap;
+    var rules = format.participationBonus;
+    var credited = this.lineup.filter(p => (p.num_played || 0) >= rules.roundsForCredit).length;
+    var forfeit = rules.forfeitOnIllegalSubstitution && this.illegalSubstitution;
+    bonus.participation = forfeit ? 0 : (rules.byPlayersWithCredit[credited] || 0);
+    bonus.handicap = handicap.matchHandicap(this.lineup, format);
     return bonus;
   },
 };
@@ -662,12 +581,12 @@ Match.prototype = {
     return round.games[n-1];
   },
   // ----------------- WHO PICKS/PLAYS FIRST? ------------------
+  //[picking team, responding team] for a round; the picking team fills slots
+  //1 and 3 of each game and the responding team slots 2 and 4.
   getOrder: function(round) {
-    var round = round || this.round;
-    if(round == 1) return [this.away, this.home];
-    if(round == 2) return [this.home, this.away];
-    if(round == 3) return [this.away, this.home];
-    if(round == 4) return [this.home, this.away];
+    var spec = format.roundSpec(round || this.round);
+    if(spec && spec.firstPick == 'home') return [this.home, this.away];
+    return [this.away, this.home];
   },
   getPickingTeam: function(round) {
     var order = this.getOrder(round);
@@ -677,9 +596,19 @@ Match.prototype = {
     if(this.state == CONST.RESPONDING) {
       return order[1];
     }
-    if(this.state == CONST.TIE_BREAKER) {
-      if(this.step % 2 == 1) return this.home;
-      if(this.step == 2) return this.away;
+  },
+  //Formats with lineup.truncateGamesToLineup drop games a short lineup can't
+  //fill, so a 4-player team plays 4 singles instead of 5. Applies while the
+  //round is being picked.
+  truncateGamesIfNeeded: function(r) {
+    if(!format.lineup.truncateGamesToLineup || this.state != CONST.PICKING) return;
+    var round = this.getRound(r);
+    var spec = format.roundSpec(round.n);
+    if(!spec) return;
+    var smaller = Math.min(this.away.lineup.length, this.home.lineup.length);
+    var playable = Math.floor(smaller / (spec.playersPerGame / 2));
+    if(playable < round.games.length) {
+      round.games.splice(playable);
     }
   },
   // ------------------ MAKE PICKS -------------------------
@@ -709,6 +638,7 @@ Match.prototype = {
       //At this point, the ukey is a captain of the "picking"
       //team, and posting picks for this.round and this.state.
       // TODO: Seems like a bad idea to automatically write to the actual games objects.
+      this.truncateGamesIfNeeded(this.round);
       var games = this.getRound().games;
       for(prop in params.picks) {
         var x = params.picks[prop];
@@ -723,7 +653,7 @@ Match.prototype = {
           game[field] = x;
         }
       }
-      var numPlayers = NUM_PLAYERS[this.round - 1];
+      var numPlayers = format.roundSpec(this.round).playersPerGame;
 
       //Determine if picks are satisfied.
       var picksReady = true;
@@ -760,83 +690,37 @@ Match.prototype = {
         return true;
       };
 
-      // TODO: This is where we need to alter what is considered ready to move on.
-      if(this.state == CONST.TIE_BREAKER) {
-        if(this.step == 1) {
-          let g = games[0];
-          if(!addMachine(g.machine)) picksReady = false;
-          if(!addPlayer(1,g.player_1)) picksReady = false;
+      // ++++++++++ Regular round logic ++++++++++++++++
+      for(var i = 0; i < games.length; i++) {
+        var g = games[i];
+        //Verify picking team picks.
+        if(!addMachine(g.machine)) picksReady = false;
+        if(!addPlayer(1,g.player_1)) picksReady = false;
+        if(numPlayers > 2) {
           if(!addPlayer(3,g.player_3)) picksReady = false;
         }
-        if(this.step == 2) {
-          let g = games[0];
+        if(this.state == CONST.RESPONDING) {
+          //Verify responding team picks.
           if(!addPlayer(2,g.player_2)) picksReady = false;
-          if(!addPlayer(4,g.player_4)) picksReady = false;
-
-          // NOTE: the order is reversed for games 2 and 3, or is it game 1?
-          g = games[1];
-          if(!addMachine(g.machine)) picksReady = false;
-          if(!addPlayer(1,g.player_1)) picksReady = false;
-          if(!addPlayer(3,g.player_3)) picksReady = false;
-
-          g = games[2];
-          if(!addMachine(g.machine)) picksReady = false;
-          if(!addPlayer(1,g.player_1)) picksReady = false;
-          if(!addPlayer(3,g.player_3)) picksReady = false;
-        }
-        if(this.step == 3) {
-          let g = games[1];
-          if(!addPlayer(2,g.player_2)) picksReady = false;
-          if(!addPlayer(4,g.player_4)) picksReady = false;
-
-          g = games[2];
-          if(!addPlayer(2,g.player_2)) picksReady = false;
-          if(!addPlayer(4,g.player_4)) picksReady = false;
-        }
-
-        if(picksReady) {
-          if(this.step < 3) {
-            this.step++;
-          }
-          else {
-            this.setState(CONST.PLAYING);
+          if(numPlayers > 2) {
+            if(!addPlayer(4,g.player_4)) picksReady = false;
           }
         }
       }
-      else {
-        // ++++++++++ Regular round logic ++++++++++++++++
-        for(var i = 0; i < games.length; i++) {
-          var g = games[i];
-          //Verify picking team picks.
-          if(!addMachine(g.machine)) picksReady = false;
-          if(!addPlayer(1,g.player_1)) picksReady = false;
-          if(numPlayers > 2) {
-            if(!addPlayer(3,g.player_3)) picksReady = false;
-          }
-          if(this.state == CONST.RESPONDING) {
-            //Verify responding team picks.
-            if(!addPlayer(2,g.player_2)) picksReady = false;
-            if(numPlayers > 2) {
-              if(!addPlayer(4,g.player_4)) picksReady = false;
-            }
-          }
-        }
 
-        console.log("state:",this.state,"picksReady:",picksReady);
+      console.log("state:",this.state,"picksReady:",picksReady);
 
-        if(this.state == CONST.PICKING) {
-          if(picksReady) {
-            stampMetric(this.getRound(), 'picked');
-            this.setState(CONST.RESPONDING);
-          }
+      if(this.state == CONST.PICKING) {
+        if(picksReady) {
+          stampMetric(this.getRound(), 'picked');
+          this.setState(CONST.RESPONDING);
         }
-        else if(this.state == CONST.RESPONDING) {
-          if(picksReady) {
-            stampMetric(this.getRound(), 'responded');
-            this.setState(CONST.PLAYING);
-          }
+      }
+      else if(this.state == CONST.RESPONDING) {
+        if(picksReady) {
+          stampMetric(this.getRound(), 'responded');
+          this.setState(CONST.PLAYING);
         }
-        // ++++++++++++ End of regular round logic +++++++++++++
       }
 
       this.save();
@@ -844,79 +728,62 @@ Match.prototype = {
       else if(errors && errors.length > 0) throw new Error(JSON.stringify(errors));
     }
   },
-  // ----------------- CALC POINTS -------------------------
-  // This allows us to recalc points after edits outside
-  // of reportScores().
-  // TODO: Match.prototype.calcPoints is dead code.
-  // Furthermore, it's dangerous code because some
-  // matches might change their saved points on rule
-  // changes. The key example is the change from 10-2 to 10-3
-  // where tie breaker rounds are played on both sides of the
-  // board. The goal is to fix those matches, but someday
-  // we will want to integrate multiple rule sets and allow
-  // for those different formats. It would make sense to have a
-  // shape definition file for a match for each rule, and the
-  // rule would have a date range that it was in effect.
-  calcPoints: function() {
-    console.log("calcPoints() ...");
-    for(i in this.rounds) {
-      var r = this.rounds[i];
-      for(j in r.games) {
-        var g = r.games[j];
-        if(gameDone(g,r.n)) {
-          calcPoints(g,r.n);
-        }
-        else {
-          console.log("Incomplete game:",r.n,g.n);
-        }
-      }
-      if(!roundDone(r)) {
-        console.log("Incomplete round:",r.n);
-      }
-    }
-  },
   // ----------------- GET POINTS --------------------------
   //TODO: Consider rename getPoints -> getBoxscore
   // TODO: The only way that coundGames() is called is through getPoints. That seems kind of whack.
+  //Totals from the regular rounds plus bonus and any point_adjust. The
+  //tie-breaker round, when played, is reported separately in points.tieBreaker
+  //and settles the result (see getResult) without counting in the totals.
   getPoints: function() {
     countGames(this);
-    var points = { home: 0, away: 0, rounds: [] };
-    for(var r = 0; r < 4; r++) {
-      var round = this.rounds[r];
-      points.rounds[r] = { n: r+1, home: 0, away: 0 };
-      for(var i = 0; i < round.games.length; i++) {
-        var g = round.games[i];
-        points.home += g.home_points || 0;
-        points.away += g.away_points || 0;
-        points.rounds[r].home += g.home_points || 0;
-        points.rounds[r].away += g.away_points || 0;
+    var points = { home: 0, away: 0, rounds: [], tieBreaker: null };
+    var allGamesPlayed = true;
+    for(var r = 0; r < format.regularRounds; r++) {
+      var tally = tallyRound(this.getRound(r + 1));
+      if(!tally.done) allGamesPlayed = false;
+      points.rounds[r] = { n: r+1, home: tally.home, away: tally.away };
+      points.home += tally.home;
+      points.away += tally.away;
+    }
+    if(format.tieBreakerRound) {
+      var tieBreaker = this.getRound(format.tieBreakerRound);
+      if(tieBreaker.n) {
+        var tb = tallyRound(tieBreaker);
+        points.tieBreaker = { n: tieBreaker.n, home: tb.home, away: tb.away };
       }
     }
-    var hbonus = this.home.getBonus();
-    var hb = hbonus.participation + hbonus.handicap;
-    var abonus = this.away.getBonus();
-    var ab = abonus.participation + abonus.handicap;
-    if(this.point_adjust != null) {
-      if (this.point_adjust.home_points < 0 && (this.point_adjust.home_points + hb) >= 0) {
-        // if negative adjust, assume the point adjust is to override and remove bonus points
-        hb += this.point_adjust.home_points
-      } else {
-        points.home += this.point_adjust.home_points
-      }
-      if (this.point_adjust.away_points < 0 && (this.point_adjust.away_points + ab) >= 0) {
-        // if negative adjust, assume the point adjust is to override and remove bonus points
-        ab += this.point_adjust.away_points
-      } else {
-        points.away += this.point_adjust.away_points
-      }
-    }
+    var hbonus = this.home.getBonus(allGamesPlayed);
+    var abonus = this.away.getBonus(allGamesPlayed);
+    var adjust = this.point_adjust || {};
+    var home = applyPointAdjust(adjust.home_points, hbonus.participation + hbonus.handicap);
+    var away = applyPointAdjust(adjust.away_points, abonus.participation + abonus.handicap);
     points.bonus = {
       home: hbonus,
       away: abonus,
     };
-    points.home += hb;
-    points.away += ab;
+    points.home += home.bonus + home.points;
+    points.away += away.bonus + away.points;
     return points;
+  },
+  //True when the regular-round totals (with bonus and adjustments) are equal.
+  isTied: function() {
+    var points = this.getPoints();
+    return points.home == points.away;
+  },
+  //'home', 'away' or 'tie' once the match is done, otherwise null. A tie after
+  //the regular rounds is settled by the tie-breaker round when the format has one.
+  getResult: function() {
+    if(!this.isDone()) return null;
+    var points = this.getPoints();
+    var home = points.home;
+    var away = points.away;
+    if(home == away && points.tieBreaker) {
+      home = points.tieBreaker.home;
+      away = points.tieBreaker.away;
+    }
+    if(home > away) return 'home';
+    if(away > home) return 'away';
+    return 'tie';
   },
   canReport: function(params) {
     var ukey = params.ukey;
@@ -1142,8 +1009,13 @@ Match.prototype = {
     if(round.left_confirmed && round.right_confirmed) {
       //console.log("Round has been mutually confirmed!");
 
-      if(this.round < 4) {
+      if(this.round < format.regularRounds) {
         this.round++;
+        this.setState(CONST.PICKING);
+      }
+      else if(this.round == format.regularRounds && format.tieBreaker && this.isTied()) {
+        this.rounds.push(makeRound(format.tieBreakerRound, format.tieBreaker));
+        this.round = format.tieBreakerRound;
         this.setState(CONST.PICKING);
       }
       else {
@@ -1155,26 +1027,12 @@ Match.prototype = {
   },
   /** Method to see if a match is complete. */
   isDone: function() {
-    //Do we need more rounds?
-    if(this.round < 4) {
-      return false;
-    }
-    var points = this.getPoints();
-    var round = this.getRound();
-    if(this.round == 4) {
-      if(round.done) {
-        return true;
-      }
-      else {
-        console.log("!round.done")
-        return false; //Finish round 4
-      }
-    }
-    // Soon this will be an assert condition, but consuming old matches can result in round 5 (which we will now ignore)
-    if ( this.round > 4 ) {
-      console.log("this.round > 4");
-      return true;//We don't support round 5 any more.  So assume 'done'
-    }
+    if(this.state == CONST.COMPLETE) return true;
+    if(this.round < format.regularRounds) return false;
+    //The last round's scores are all in (confirmation may still be pending).
+    if(!this.getRound().done) return false;
+    if(format.isTieBreaker(this.round)) return true;
+    return !(format.tieBreaker && this.isTied());
   },
   save: function() {
     var json = JSON.stringify(this,null,2);
@@ -1186,105 +1044,35 @@ Match.prototype = {
   }
 };
 
-// TODO: Replace, or at least move calcPoints with module.
-//       In theory, there should be a Game class with a getPoints method.
-function calcPoints(game, round) {
-  // console.log("calcPoints() game:", game, " round:", round);
-  if(round == 1 || round == 4) {
-    //Doubles game
-    var points = calcDoubles([
-      game.score_1,
-      game.score_2,
-      game.score_3,
-      game.score_4,
-    ]);
-    game.points_1 = points[0];
-    game.points_2 = points[1];
-    game.points_3 = points[2];
-    game.points_4 = points[3];
-
-    game.score_13 = game.score_1 + game.score_3;
-    game.score_24 = game.score_2 + game.score_4;
-
-    game.points_13 = points[0] + points[2];
-    game.points_24 = points[1] + points[3];
-
-    game.away_points = (round == 1 ?
-        game.points_13 : game.points_24);
-    game.home_points = (round == 1 ?
-        game.points_24 : game.points_13);
+//Home and away points scored in a round, and whether all its games are done.
+function tallyRound(round) {
+  var tally = { home: 0, away: 0, done: true };
+  for(var i = 0; i < round.games.length; i++) {
+    var g = round.games[i];
+    if(!g.done) tally.done = false;
+    tally.home += g.home_points || 0;
+    tally.away += g.away_points || 0;
   }
-  else if(round == 2 || round == 3) {
-    //Singles
-    var points = calcSingles([
-      game.score_1,
-      game.score_2
-    ]);
-    game.points_1 = points[0];
-    game.points_2 = points[1];
-    game.points_13 = points[0];
-    game.points_24 = points[1];
-    game.score_13 = game.score_1;
-    game.score_24 = game.score_2;
-    game.away_points = (round == 2 ? points[1] : points[0]);
-    game.home_points = (round == 2 ? points[0] : points[1]);
-  }
-  else if(round == 5) {
-    game.away_points = 0
-    game.home_points = 0
-  }
-  else {
-    return undefined;
-  }
-  return game;
+  return tally;
 }
 
-function calcDoubles(scores) {
-  var points = [0,0,0,0];
-
-  var total1 = scores[0] + scores[2];
-  var total2 = scores[1] + scores[3];
-
-  if(scores[0] > scores[1]) { points[0]++; } else { points[1]++; }
-  if(scores[0] > scores[3]) { points[0]++; } else { points[3]++; }
-  if(scores[2] > scores[1]) { points[2]++; } else { points[1]++; }
-  if(scores[2] > scores[3]) { points[2]++; } else { points[3]++; }
-
-  if(total1 > total2) { points[0] += 0.5; points[2] += 0.5; }
-  else                { points[1] += 0.5; points[3] += 0.5; }
-
-  return points;
-}
-
-function calcSingles(scores) {
-  var points = [0,0];
-
-  //float ratio = ((float)scores[0])/scores[1];
-  var ratio = scores[0]/scores[1];
-
-  //It is possible to exactly double. In NBAFB, there was a 23-46 game. 2x tie goes to the winner
-  if(ratio >= 2)        { points[0] = 3; } //p1 doubled p2
-  else if(ratio > 1)    { points[0] = 2; points[1] = 1; } //p1 def p2 without doubling
-  //There should not be any exact ties.
-  else if(ratio > 0.5)  { points[0] = 1; points[1] = 2; } //p2 def p1 without doubling
-  else                  { points[1] = 3; } //p2 doubled p1
-
-  return points;
-}
-
-function calcShared(scores) {
-  //I suppose this could be for all players, but
-  //I'm probably already going to refactor all of this.
-  points = [0,0];
-
-  if(scores[0] == 0 && scores[1] == 0) {
-    return points;
+//Manual point adjustment for forfeits and suspended matches. An admin adds it
+//to the match file, then reloads the matches:
+//  "point_adjust": { "home_points": 0, "away_points": -2 }
+//A negative adjustment comes out of the team's bonus when the bonus covers
+//it, otherwise out of its points. A missing value counts as 0.
+function applyPointAdjust(adjust, bonus) {
+  var amount = Number(adjust) || 0;
+  if(amount < 0 && amount + bonus >= 0) {
+    return { bonus: bonus + amount, points: 0 };
   }
+  return { bonus: bonus, points: amount };
+}
 
-  if(scores[0] > scores[1]) points[0] = 0.333; //1/3;
-  else                      points[1] = 0.333; //1/3;
-
-  return points;
+function calcPoints(game, r) {
+  var spec = format.roundSpec(r);
+  if(!spec) return undefined;
+  return scoring.scoreGame(game, spec);
 }
 
 function countGames(match) {
@@ -1294,18 +1082,16 @@ function countGames(match) {
     var x = map[key] || 0;
     map[key] = x + 1;
   }
+  //Games played in the regular rounds; the tie-breaker doesn't count.
   for(i in match.rounds) {
     var round = match.rounds[i];
+    var spec = format.roundSpec(round.n);
+    if(!spec || format.isTieBreaker(round.n)) continue;
     for(j in round.games) {
       var game = round.games[j];
       if(game.done) {
-        if(round.n < 5) {
-          incr(game.player_1);
-          incr(game.player_2);
-        }
-        if(round.n == 1 || round.n == 4) {
-          incr(game.player_3);
-          incr(game.player_4);
+        for(var slot = 1; slot <= spec.playersPerGame; slot++) {
+          incr(game['player_' + slot]);
         }
       }
     }
@@ -1345,18 +1131,12 @@ function roundDone(round) {
 }
 
 function gameDone(game, r) {
+  var spec = format.roundSpec(r);
+  var scoresNeeded = spec ? spec.playersPerGame : 2;
   var done = true;
-  if(!game.score_1 || game.score_1.length == 0) {
-    done = false;
-  }
-  if(!game.score_2 || game.score_2.length == 0) {
-    done = false;
-  }
-  if(NUM_SCORES[r-1] > 2) {
-    if(!game.score_3 || game.score_3.length == 0) {
-      done = false;
-    }
-    if(!game.score_4 || game.score_4.length == 0) {
+  for(var slot = 1; slot <= scoresNeeded; slot++) {
+    var score = game['score_' + slot];
+    if(!score || score.length == 0) {
       done = false;
     }
   }
@@ -1383,7 +1163,6 @@ function get(key) {
 
 module.exports = {
   Match,
-  NUM_SCORES,
   //TODO: Should probably add callbacks to get and all.
   // uget: get match by user key
   uget: function(ukey) {

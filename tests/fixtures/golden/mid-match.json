@@ -36,7 +36,8 @@
         "participation": 0,
         "handicap": 0
       }
-    }
+    },
+    "tieBreaker": null
   },
   "away": [
     {

@@ -76,6 +76,9 @@ function submitPicks(match, team, slots, round, machines) {
 
 function playRound(match, roundSpec, scoreFor) {
    const CONST = require('../../constants')
+   // What the match page does before showing the picks: a short lineup may
+   // shorten the round in formats with lineup.truncateGamesToLineup.
+   match.truncateGamesIfNeeded(match.round)
    const round = match.getRound(match.round)
    const [picking, responding] = match.getOrder(match.round)
    const slotsPerTeam = roundSpec.playersPerGame / 2

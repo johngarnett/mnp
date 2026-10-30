@@ -4,12 +4,10 @@
 <table class="table">
   <colgroup>
     <col style="width: 54%;">
+    {{#rounds}}<col style="width: 6%;">{{/rounds}}
+    {{#tie_breaker}}<col style="width: 6%;">{{/tie_breaker}}
     <col style="width: 6%;">
-    <col style="width: 6%;">
-    <col style="width: 6%;">
-    <col style="width: 6%;">
-    <col style="width: 6%;">
-    <col style="width: 6%;">
+    {{#has_handicap}}<col style="width: 6%;">{{/has_handicap}}
     <col style="width: 12%;">
   </colgroup>
 <thead>
@@ -22,8 +20,13 @@
 <a href="/matches/{{key}}?round={{n}}">{{n}}</a>
 </td>
 {{/rounds}}
+{{#tie_breaker}}
+<td class="text-xs-right">
+<a href="/matches/{{key}}?round={{n}}">TB</a>
+</td>
+{{/tie_breaker}}
 <td class="text-xs-right">B</td>
-<td class="text-xs-right">H</td>
+{{#has_handicap}}<td class="text-xs-right">H</td>{{/has_handicap}}
 <td class="text-xs-right pl-0">Total</td>
 </tr>
 </thead>
@@ -32,8 +35,9 @@
 {{#rounds}}
 <td class="text-xs-right">{{away}}</td>
 {{/rounds}}
+{{#tie_breaker}}<td class="text-xs-right">{{away}}</td>{{/tie_breaker}}
 <td class="text-xs-right">{{away_bonus}}</td>
-<td class="text-xs-right">{{away_hcp}}</td>
+{{#has_handicap}}<td class="text-xs-right">{{away_hcp}}</td>{{/has_handicap}}
 <td class="text-xs-right">{{away_total}}</td>
 </tr>
 <tr>
@@ -41,8 +45,9 @@
 {{#rounds}}
 <td class="text-xs-right">{{home}}</td>
 {{/rounds}}
+{{#tie_breaker}}<td class="text-xs-right">{{home}}</td>{{/tie_breaker}}
 <td class="text-xs-right">{{home_bonus}}</td>
-<td class="text-xs-right">{{home_hcp}}</td>
+{{#has_handicap}}<td class="text-xs-right">{{home_hcp}}</td>{{/has_handicap}}
 <td class="text-xs-right">{{home_total}}</td>
 </tr>
 </table>
@@ -68,5 +73,5 @@
 Venue: <a href="/matches/{{key}}/venue">{{venue}}</a>
 <hr>
 <div class="round-line">
-{{#round}}<b>Round: {{.}}</b>{{/round}}
+{{#round}}<b>Round: {{.}}</b>{{/round}}{{#is_tie_breaker}} <b>(Tie-Breaker)</b>{{/is_tie_breaker}}
 </div>

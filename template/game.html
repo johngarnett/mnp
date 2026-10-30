@@ -5,7 +5,7 @@
 <div id="failure" aria-hidden="true">&#x2716;&#xFE0E;</div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<a href="/matches/{{key}}">{{name}}</a> : Rnd {{round}} : Game {{n}}
+<a href="/matches/{{key}}">{{name}}</a> : Rnd {{round}} : Game {{n}} &middot; {{type}}
 <br>
 <span id="machine-label" class="norm"></span>
 <span id="edit-machine" class="edit">Editing...</span>
@@ -55,22 +55,7 @@
 </td>
 <td>&nbsp;</td>
 </tr>
-{{#shared}}
 <tr>
-<td>
-  <span id="p3" class="norm"></span>
-  <span id="edit-p3" class="edit">edit-p3</span>
-</td>
-<td>&nbsp;</td>
-<td>
-  <span id="p4" class="norm"></span>
-  <span id="edit-p4" class="edit">edit-p4</span>
-</td>
-<td>&nbsp;</td>
-</tr>
-{{/shared}}
-<tr>
-<!-- TODO Shared Scores -->
 <td id="s1" class="score">Player 1 Score</td>
 <td id="pnts1" class="points">0.0</td>
 <td id="s2" class="score">Player 2 Score</td>

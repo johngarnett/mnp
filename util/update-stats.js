@@ -5,8 +5,14 @@ var matches = require('../model/matches');
 var machines = require('../model/machines');
 var stats = require('../model/stats');
 
-//Lookup for points available by round, 1-based.
-var PA = [0,2.5,3,3,2.5,0];
+var matchFormat = require('../lib/formats');
+var scoring = require('../lib/scoring');
+
+//Points one player can win in a game of round n (by the round's game type).
+function pointsAvailable(n) {
+  var spec = matchFormat.roundSpec(n);
+  return spec ? scoring.pointsAvailable(spec) : 0;
+}
 
 //TODO: This function can be handled with Numeral on the client side.
 function format(num) {
@@ -52,8 +58,9 @@ function build() {
 
     for(j in match.rounds) {
       var round = match.rounds[j];
-      //Only use singles and doubles for stats.
-      if(round.n < 5) {
+      //Only the regular rounds count toward stats.
+      var spec = matchFormat.roundSpec(round.n);
+      if(spec && !matchFormat.isTieBreaker(round.n)) {
         for(k in round.games) {
           var game = round.games[k];
           var mk = game.machine;
@@ -64,17 +71,15 @@ function build() {
           //TODO: Only track finished games.
 
           //player_n, score_n, points_n
-          for(x = 1; x < 5; x++) {
+          for(x = 1; x <= spec.playersPerGame; x++) {
             var pn = 'player_' + x;
             var pk = game[pn];
             if(pk) {
-              //For rounds 1 and 3, away team is players 1 (and 3).
-              var team = ((round.n - 1) % 2 == 0) ?
-                ((x-1) % 2 == 0) ? ak : hk :
-                ((x-1) % 2 == 0) ? hk : ak;
-              var opp = ((round.n - 1) % 2 == 0) ?
-                ((x-1) % 2 == 0) ? hk : ak :
-                ((x-1) % 2 == 0) ? ak : hk;
+              //The team that picked first has the odd slots.
+              var firstPickKey = spec.firstPick == 'home' ? hk : ak;
+              var respondingKey = spec.firstPick == 'home' ? ak : hk;
+              var team = (x % 2 == 1) ? firstPickKey : respondingKey;
+              var opp = (x % 2 == 1) ? respondingKey : firstPickKey;
               var sn = 'score_' + x;
               var tn = 'points_' + x;
               var player = players[pk];
@@ -100,7 +105,7 @@ function build() {
                 machine: mk,
                 score: game[sn],
                 points: game[tn],
-                pops: format(game[tn] / PA[round.n])
+                pops: format(game[tn] / pointsAvailable(round.n))
               });
             }
           }
@@ -117,7 +122,7 @@ function build() {
     for(i in player.history) {
       var item = player.history[i];
       tot.won += item.points;
-      tot.of  += PA[item.round];
+      tot.of  += pointsAvailable(item.round);
       var mk = item.match;
       pm[mk] = pm[mk] ? pm[mk] + 1 : 1;
     }

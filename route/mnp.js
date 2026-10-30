@@ -17,9 +17,6 @@ const LEAGUE_TIME_ZONE = 'America/Los_Angeles';
 const MS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const NO_TIME = '—';
-//Rounds 1-4 are the regular rounds (round 5, the tie-breaker, isn't played
-//through these pages).
-const LAST_ROUND = 4;
 //A player key (sha1 hex) shown in place of a name is cut to its last digits.
 const PLAYER_KEY_PATTERN = /^[0-9a-f]{40}$/;
 const SHORT_KEY_LENGTH = 10;
@@ -60,6 +57,10 @@ const IPR = require('../model/ratings');
 var players = require('../model/players');
 const stats = require('../model/stats');
 var { getSuggestions } = require('../model/suggestions');
+
+//The match format: rounds, lineup limits, bonus, handicap, tie-breaker (lib/formats).
+const format = require('../lib/formats');
+const handicap = require('../lib/handicap');
 
 var base = fs.readFileSync('./template/base.html').toString();
 
@@ -122,6 +123,7 @@ console.log("GET /matches");
     style: style,
     title: 'Matches',
     playerFN: players.get(ukey) ? players.get(ukey).name.split(' ')[0] : "PLAYER",
+    has_handicap: format.handicap.enabled,
     // matches: boxes,
     week_nums: nums,
     weeks: weeks,
@@ -374,8 +376,10 @@ router.get('/matches/:match_id/venue',function(req,res) {
     home_hcp: points.bonus.home.handicap,
     home_total: points.home,
     expected_points_to_tie_A: expected_points_to_tie_A,
-    expected_points_to_tie_H: expected_points_to_tie_A,
+    expected_points_to_tie_H: expected_points_to_tie_H,
     rounds: points.rounds,
+    tie_breaker: points.tieBreaker,
+    has_handicap: format.handicap.enabled,
     canEdit: auth,
     sugs: JSON.stringify(machines.all())
   }, {
@@ -500,6 +504,8 @@ function renderTeam(params) {
     expected_points_to_tie_A: expected_points_to_tie_A,
     expected_points_to_tie_H: expected_points_to_tie_H,
     rounds: points.rounds,
+    tie_breaker: points.tieBreaker,
+    has_handicap: format.handicap.enabled,
     home_or_away: params.label.toLowerCase(),
     label: params.label,
     // team_name: team.name,
@@ -510,7 +516,7 @@ function renderTeam(params) {
     canAdd: perms.canEdit, //Add a canAdd perm to the perms object?
     canEdit: perms.canEdit,
     canRemove: perms.canRemove,
-    canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && team.lineup.length > 7,
+    canBegin: !team.ready && match.state == CONST.PREGAME && perms.canEdit && lineupSizeAllowed(team.lineup.length),
     sugs: match.state == CONST.PREGAME ? JSON.stringify(getSuggestions([team.key]),null,2) : '[]'
   },{
     head: head,
@@ -746,14 +752,15 @@ function roundTiming(match, n) {
 }
 
 //The timing tables at the bottom of the page for round n: round 1 shows the
-//lineup table and its round; rounds 2-4 show "Round began at" (when both
+//lineup table and its round; later rounds show "Round began at" (when both
 //teams confirmed the round before) and their round. On the last round of a
-//finished match, every table is shown in order instead: lineups, then rounds
-//1-4, each captioned "Round N began at <time>".
+//finished match (the last regular round, or the tie-breaker when one was
+//played), every table is shown in order instead: lineups, then each round,
+//captioned "Round N began at <time>".
 function matchTimingTables(match, n) {
-  if(match.state == CONST.COMPLETE && n == LAST_ROUND) {
+  if(match.state == CONST.COMPLETE && n == match.round) {
     var rounds = [];
-    for(var r = 1; r <= LAST_ROUND; r++) {
+    for(var r = 1; r <= match.round; r++) {
       var t = roundTiming(match, r);
       if(t) {
         var ready = roundReadyAt(match, r);
@@ -794,58 +801,28 @@ function takeFlash(req, res) {
   return message;
 }
 
+//The bonus a lineup earns if every player plays enough rounds.
 function expectedBonus(lineup) {
-  if(lineup.length == 9) {
-    return 4;
-  }
-  if(lineup.length == 10) {
-    return 9;
-  }
-  return 0;
-} 
-
-function expectedPoints(lineup) {
-  var epts = 41;
-  epts += expectedBonus(lineup);
-  epts += expectedHcp(lineup);
-  return epts;
-}
-
-function iprForPlayer(player) {
-  if (!player) {
-    return 0;
-  }
-  if(Number.isFinite(player.IPR)) {
-    return Math.max(1, player.IPR);
-  }
-  return Math.max(1, player.rating);
+  return format.participationBonus.byPlayersWithCredit[lineup.length] || 0;
 }
 
 function expectedHcp(lineup) {
-  lineup.sort((a, b) => iprForPlayer(b) - iprForPlayer(a));
+  return handicap.expected(lineup, format);
+}
 
-  var teamIPR = 0;
-  for(i in lineup) {
-    var p = lineup[i];
-    teamIPR += iprForPlayer(p);
-  }
-  if(lineup.length < 10) {
-    var p0 = iprForPlayer(lineup[0]);
-    var p1 = iprForPlayer(lineup[1]);
-    var p2 = iprForPlayer(lineup[2]);
-    teamIPR += (p0 + p1 + p2)/3;
-  }
-  if(lineup.length < 9) {
-    var p3 = iprForPlayer(lineup[3]);
-    var p4 = iprForPlayer(lineup[4]);
-    var p5 = iprForPlayer(lineup[5]);
-    teamIPR += (p3 + p4 + p5)/3;
-  }
+//Game points a team typically scores, plus its bonus and handicap.
+function expectedPoints(lineup) {
+  return format.expectedGamePoints + expectedBonus(lineup) + expectedHcp(lineup);
+}
 
-  var handicap = Math.trunc((50-teamIPR)/2);
-  handicap = Math.max(handicap, 0);
-  handicap = Math.min(handicap, 15);
-  return handicap;
+function lineupSizeAllowed(size) {
+  return size >= format.lineup.min && size <= format.lineup.max;
+}
+
+//"Doubles", "Singles", or "Singles Tie Breaker" for the game page.
+function gameTypeLabel(round, spec) {
+  var label = spec.type == 'doubles' ? 'Doubles' : 'Singles';
+  return format.isTieBreaker(round) ? label + ' Tie Breaker' : label;
 }
 
 function labelsFor(match, showCount) {
@@ -916,12 +893,14 @@ function renderMatch(params) {
 
   console.log("renderMatch, requested round:",params.round,match.round,match.key,ukey,state,match.state);
 
+  //A short lineup may shorten the round being picked (format-dependent).
+  match.truncateGamesIfNeeded(params.round);
   var round = match.getRound(params.round); // Defaults to match.round
+  var spec = format.roundSpec(round.n) || format.rounds[0];
   //console.log("round:",round);
 
   //NOTE: We should get the games for the round requested.
   var games = round.games;
-  var num = games.length;
   var venue = match.venue;
 
   var labels = labelsFor(match);
@@ -940,11 +919,6 @@ function renderMatch(params) {
   var home_ipr = 0;
 
   switch(state) {
-    case CONST.TIE_BREAKER:
-      template = fs.readFileSync('./template/tie_breaker.html').toString();
-      games = JSON.stringify(games);
-      editable = perms.canEdit;
-      break;
     case CONST.PICKING:
       template = fs.readFileSync('./template/picking.html').toString();
       games = JSON.stringify(games);
@@ -1048,11 +1022,11 @@ function renderMatch(params) {
     players: match.players, //TODO: Deprecate this
     week: match.week,
     round: round.n, //ROUND, where is it used.
-    step: match.step || 0,
+    is_tie_breaker: format.isTieBreaker(round.n),
     games: games,
-    // singles: ????
-    doubles: (num == 4),
-    shared: round.n == 5, //ROUND, using again.
+    doubles: spec.type == 'doubles',
+    has_handicap: format.handicap.enabled,
+    tie_breaker: points.tieBreaker,
     machines: JSON.stringify(sortMachineKeys(venue.machines, labels)),
     referenceTime: match.state_at,
     lineup: JSON.stringify(lineup),
@@ -1103,12 +1077,6 @@ function renderMatch(params) {
   return html;
 }
 
-//TODO These are redundant with matches.js
-var NUM_GAMES   = [4,7,7,4,3];
-var NUM_PLAYERS = [4,2,2,4,4];
-var NUM_SCORES  = [4,2,2,4,2];
-var GAME_TYPES  = ['Doubles','Singles','Singles','Doubles','Shared Tie Breaker'];
-
 router.get('/games/:key.:round.:n',function(req,res) {
   console.log("GET /games ",req.params);
   var ukey = req.user.key || 'ANON';  //TODO: have users.js set ANON
@@ -1117,7 +1085,8 @@ router.get('/games/:key.:round.:n',function(req,res) {
   var round = req.params.round;
   var n = req.params.n ? parseInt(req.params.n) : 1;
   var game = match.getGame(round,n);
-  if(!game) { return res.redirect('/matches/'+req.params.key); }
+  var spec = format.roundSpec(round);
+  if(!game || !spec) { return res.redirect('/matches/'+req.params.key); }
   var template = fs.readFileSync('./template/game.html').toString();
   var css = fs.readFileSync('./template/game.css').toString();
   var detectCss = fs.readFileSync(GAME_DETECT_STYLE).toString();
@@ -1143,12 +1112,6 @@ router.get('/games/:key.:round.:n',function(req,res) {
   var left  = order[0];
   var right = order[1];
 
-  // This hack deals with a season 10 rule change.
-  if(match.round === 5) {
-    left  = n > 1 ? match.away : match.home;
-    right = n > 1 ? match.home : match.away;
-  }
-
   //NOTE: left and right players are for if a game needs to be edited.
 
   left.lineup.sort(nameSort);
@@ -1167,7 +1130,7 @@ router.get('/games/:key.:round.:n',function(req,res) {
   }
 
   var prev = n > 1 ? stem + (n-1) : null;
-  var next = n < NUM_GAMES[round-1] ? stem + (n+1) : null;
+  var next = n < spec.games ? stem + (n+1) : null;
   var html = mustache.render(base, {
     redirect_url: '/games/'+req.params.key+'.'+round+'.'+n,
     title: 'Game',
@@ -1178,8 +1141,7 @@ router.get('/games/:key.:round.:n',function(req,res) {
     week: match.week,
     round: round,
     n: game.n,
-    doubles: (NUM_SCORES[round-1] == 4),
-    shared: round == 5,
+    doubles: spec.type == 'doubles',
     game: JSON.stringify(game),
     photo_max_bytes: photos.PHOTO_MAX_BYTES,
     machines: JSON.stringify(sortedMachines),
@@ -1190,7 +1152,7 @@ router.get('/games/:key.:round.:n',function(req,res) {
     score_24: 0 + (game.score_2 || 0) + (game.score_4 || 0),
     points_13: 0 + (game.points_1 || 0) + (game.points_3 || 0),
     points_24: 0 + (game.points_2 || 0) + (game.points_4 || 0),
-    type: GAME_TYPES[round-1],
+    type: gameTypeLabel(round, spec),
     editable: editable,
     //Detect Scores is offered to logged-in players when the score service key works.
     can_detect: !!req.user.key && scoreService.isAvailable(),

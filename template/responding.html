@@ -102,18 +102,6 @@ console.log('games['+i+']: ',game);
   {{/editable}}
   chunk += '</td></tr>';
   {{/doubles}}
-
-  {{#shared}}
-  chunk += '<tr><td>' +labels[game.player_3]+ '</td>';
-  chunk += '<td>';
-  {{#editable}}
-  chunk += makeSelect('player_4.'+game.n, 'Shared Partner', players, game.player_4);
-  {{/editable}}
-  {{^editable}}
-  chunk += labels[game.player_4] || 'Shared Partner';
-  {{/editable}}
-  chunk += '</td></tr>';
-  {{/shared}}
 }
 
 var el = document.getElementById('games');

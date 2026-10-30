@@ -6,10 +6,23 @@ const machines = require('../model/machines');
 const players = require('../model/players');
 const { teams } = require('../model/seasons').get();
 const config = require('../config');
+const matchFormat = require('../lib/formats');
+const scoring = require('../lib/scoring');
 const DATA_FOLDER = config.DATA_FOLDER;
 const CURRENT_SEASON = config.CURRENT_SEASON;
 
-const PA = [0, 2.5, 3, 3, 2.5, 0];
+//Points one player can win in a game of round n (by the round's game type).
+function pointsAvailable(n) {
+  const spec = matchFormat.roundSpec(n);
+  return spec ? scoring.pointsAvailable(spec) : 0;
+}
+
+//The side (home or away) that fills a game slot: the team that picked first
+//has the odd slots.
+function sideForSlot(spec, slot) {
+  const firstPick = slot % 2 === 1;
+  return (firstPick === (spec.firstPick === 'home')) ? 'home' : 'away';
+}
 
 //TODO: This function can be handled with Numeral on the client side.
 function format(num) {
@@ -70,24 +83,27 @@ const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
   const division = teams[match.home.key] ? teams[match.home.key].division : 0;
 
   match.rounds.forEach(round => {
-    if(round.n > 4) return;
+    const spec = matchFormat.roundSpec(round.n);
+    //Only the regular rounds count toward stats.
+    if(!spec || matchFormat.isTieBreaker(round.n)) return;
     round.games.forEach(game => {
       const mk = game.machine;
       if(!machines.get(mk)) {
         console.log('WARNING, Unknown machine:', mk, '@', match.venue.key, 'in week', match.week, 'round', round.n, match.key);
       }
-      [1, 2, 3, 4]
+      Array.from({ length: spec.playersPerGame }, (_, i) => i + 1)
       .map(n => {
         return {
+          n,
           pn: 'player_' + n,
           sn: 'score_'  + n,
           tn: 'points_' + n
         };
       })
       .filter(p => game[p.pn])
-      .map((p, i) => {
+      .map(p => {
         // TODO Include match info.
-        const isHome = (( round.n % 2 ) + ( (i + 1) % 2)) % 2 === 1;
+        const isHome = sideForSlot(spec, p.n) === 'home';
         const team = isHome ? match.home.key : match.away.key;
         const opp  = isHome ? match.away.key : match.home.key;
         return { // history item
@@ -101,7 +117,7 @@ const lookup = fs.readdirSync(DATA_FOLDER + '/' + CURRENT_SEASON + '/matches')
           division,
           score: game[p.sn],
           points: game[p.tn],
-          pops: format(game[p.tn] / PA[round.n])
+          pops: format(game[p.tn] / pointsAvailable(round.n))
         };
       })
       .forEach(item => {
@@ -134,7 +150,7 @@ Object.keys(lookup).forEach(pk => {
 
   const historyToStats = (history) => history.reduce((tot, item) => {
     tot.won += item.points;
-    tot.of += PA[item.round];
+    tot.of += pointsAvailable(item.round);
     const mk = item.match;
     tot.pm[mk] = tot.pm[mk] ? tot.pm[mk] + 1 : 1;
     return tot;
