@@ -68,7 +68,8 @@ module.exports = {
   points over the season) or `pops` (average share of the points in the
   team's matches, shown to three decimals).
 - `expectedGamePoints`: what a team typically scores from games alone, for the
-  "points to tie" line on the match pages.
+  "Match Target to Tie" lines on the match pages. Those lines show only when
+  the handicap is enabled, since they exist to show what the handicaps mean.
 
 Bonus and handicap are awarded once every regular-round game has been played.
 

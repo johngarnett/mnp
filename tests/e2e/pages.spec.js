@@ -31,6 +31,8 @@ test('a finished match shows its rounds, bonus and totals', async ({ page }) => 
 
   expect(headers.map(h => h.trim()).slice(1)).toEqual(expected.slice(1));
   await expect(page.locator('.round-line')).toContainText(`Round: ${format.regularRounds}`);
+  // The "Match Target to Tie" lines (one per team) go with the handicap.
+  await expect(page.getByText('Match Target to Tie')).toHaveCount(format.handicap.enabled ? 2 : 0);
 
   // The timing section ends with each team's pick/respond totals.
   const totals = page.locator('.timing-totals');

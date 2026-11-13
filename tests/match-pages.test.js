@@ -19,6 +19,7 @@ const HTTP_OK = 200;
 const HTTP_REDIRECT = 302;
 const HANDICAP_HEADER = '>H</td>';
 const EXPECTED_HCP = 'Expected HCP';
+const TARGET_TO_TIE = 'Match Target to Tie';
 const TEAM = { awayKey: 'PGA', homeKey: 'PGH' };
 const MATCH_KEY = fivePlayer ? 'slp-1-1-pages' : 'mnp-1-1-pages';
 const GROUP_KEY = 'pages';
@@ -94,6 +95,7 @@ describe(`match pages under ${format.name}`, () => {
 
       assert.equal(res.status, HTTP_OK, path);
       assert.equal(res.text.includes(HANDICAP_HEADER), format.handicap.enabled, path);
+      assert.equal(res.text.includes(TARGET_TO_TIE), format.handicap.enabled, path);
     }
     const team = await request(app).get(`/matches/${MATCH_KEY}/home`);
 

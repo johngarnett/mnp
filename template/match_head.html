@@ -51,6 +51,9 @@
 <td class="text-xs-right">{{home_total}}</td>
 </tr>
 </table>
+{{#has_handicap}}
+<!-- The target each team needs from its games to tie, given the handicaps: only
+     meaningful in formats with a handicap. -->
 <table class="table">
   <colgroup>
     <col style="width: 68%;">
@@ -70,6 +73,7 @@
 </tr>
 
 </table>
+{{/has_handicap}}
 Venue: <a href="/matches/{{key}}/venue">{{venue}}</a>
 <hr>
 <div class="round-line">
