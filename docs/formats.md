@@ -37,6 +37,7 @@ module.exports = {
       forfeitOnIllegalSubstitution: true
    },
    handicap: { enabled: false },
+   standings: { rankBy: 'points' },
    expectedGamePoints: 0
 }
 ```
@@ -62,6 +63,10 @@ module.exports = {
   held between 0 and `cap`. `lib/handicap.js` has the full rule, including how
   a lineup shorter than `lineup.max` is filled in and how a team that didn't
   play every player gets the handicap of the rounds actually played.
+- `standings`: `rankBy` is the stat that orders teams with the same
+  win/loss/tie record and fills the last standings column: `points` (total
+  points over the season) or `pops` (average share of the points in the
+  team's matches, shown to three decimals).
 - `expectedGamePoints`: what a team typically scores from games alone, for the
   "points to tie" line on the match pages.
 

@@ -38,6 +38,23 @@ test('a finished match shows its rounds, bonus and totals', async ({ page }) => 
   await expect(totals.locator('.timing-team')).toHaveCount(2);
 });
 
+test("the standings end with the format's ranking stat", async ({ page }) => {
+  await page.goto('/standings');
+
+  const table = page.locator('table').first();
+  const headers = await table.locator('tr.header-row td').allTextContents();
+  const lastCells = table.locator('tr:not(.header-row) td:last-child');
+
+  expect(headers.at(-1).trim()).toBe(format.standings.rankBy === 'points' ? 'Points' : 'POPS');
+  await expect(table.locator('a')).toHaveCount(2);
+  await expect(lastCells).toHaveCount(2);
+  for (const text of await lastCells.allTextContents()) {
+    expect(text.trim()).toMatch(
+      format.standings.rankBy === 'points' ? /^\d+(\.\d+)?$/ : /^\d\.\d{3}$/
+    );
+  }
+});
+
 test('the game page names the game type', async ({ page }) => {
   await page.goto(`/games/${matchKey()}.1.1`);
 

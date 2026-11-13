@@ -17,6 +17,10 @@ const { nameForKey } = require('../lib/all-names');
 const { renderPage } = require('../lib/render');
 const brand = require('../lib/branding');
 const pages = require('../lib/content-pages');
+const matchFormat = require('../lib/formats');
+
+//The last standings column: the stat the format ranks teams by after their record.
+const RANK_LABELS = { pops: 'POPS', points: 'Points' };
 
 //The content pages (home page, rules, ...) come from the branding folder, and
 //are refreshed from BRANDING_URL when it is set; see lib/content-pages.js.
@@ -55,9 +59,10 @@ router.get('/standings',function(req,res) {
     groupKeys.push(key);
   }
 
+  const rankBy = matchFormat.standings.rankBy;
   const divisions = Object.keys(divs).map(tier => ({
     tier,
-    rows: divs[tier],
+    rows: divs[tier].map(team => ({ ...team, rank: team[rankBy] })),
     groupName: groupNames[tier],
     groupKey: groupKeys[tier]
   }));
@@ -65,6 +70,7 @@ router.get('/standings',function(req,res) {
   const ukey = req.user.key || 'ANON';
   const html = renderPage(req, {
     title: 'Standings',
+    rank_label: RANK_LABELS[rankBy],
     divisions
   },{
     content: template

@@ -21,13 +21,41 @@ const HANDICAP_HEADER = '>H</td>';
 const EXPECTED_HCP = 'Expected HCP';
 const TEAM = { awayKey: 'PGA', homeKey: 'PGH' };
 const MATCH_KEY = fivePlayer ? 'slp-1-1-pages' : 'mnp-1-1-pages';
+const GROUP_KEY = 'pages';
+const RANK_HEADERS = { pops: 'POPS', points: 'Points' };
 
 // lib/formats reads only MATCH_FORMAT, so it is safe to load before the fixture.
 const format = require('../lib/formats');
 const size = format.lineup.max;
 const roster = [...rosterFor(TEAM.awayKey, size), ...rosterFor(TEAM.homeKey, size)];
 
-fixture.setup({ ratings: roster });
+// A team's season.json roster: the names of its players.
+function names(teamKey) {
+  return rosterFor(teamKey, size).map(({ name }) => ({ name }));
+}
+
+fixture.setup({
+  ratings: roster,
+  // The standings page needs the match on the schedule and the teams in a group.
+  season: {
+    teams: {
+      [TEAM.awayKey]: {
+        key: TEAM.awayKey,
+        name: 'Away Pages',
+        division: 1,
+        roster: names(TEAM.awayKey)
+      },
+      [TEAM.homeKey]: {
+        key: TEAM.homeKey,
+        name: 'Home Pages',
+        division: 1,
+        roster: names(TEAM.homeKey)
+      }
+    },
+    groups: { [GROUP_KEY]: { key: GROUP_KEY, name: 'Pages', teams: [TEAM.awayKey, TEAM.homeKey] } },
+    weeks: [{ n: 1, isSpecial: false, isPlayoffs: false, matches: [{ match_key: MATCH_KEY }] }]
+  }
+});
 
 const { simulate } = require('./helpers/simulate-match');
 const makeKey = require('../lib/make-key');
@@ -87,6 +115,31 @@ describe(`match pages under ${format.name}`, () => {
 
     assert.equal(res.status, HTTP_REDIRECT);
     assert.equal(res.headers.location, `/matches/${MATCH_KEY}`);
+  });
+
+  it("shows the format's ranking stat as the last standings column", async () => {
+    const res = await request(app).get('/standings');
+    const points = match.getPoints();
+    const header = RANK_HEADERS[format.standings.rankBy];
+    const cells = [...res.text.matchAll(/<td class="text-xs-right">(.*?)<\/td>/g)].map(m => m[1]);
+
+    assert.equal(res.status, HTTP_OK);
+    assert.ok(res.text.includes(`/teams/${TEAM.awayKey}`), 'the away team is listed');
+    assert.ok(res.text.includes(`/teams/${TEAM.homeKey}`), 'the home team is listed');
+    assert.equal(cells[0], header);
+    assert.equal(cells.length, 3, 'header plus one cell per team');
+    if (format.standings.rankBy === 'points') {
+      assert.deepEqual(
+        cells
+          .slice(1)
+          .map(Number)
+          .sort((a, b) => b - a),
+        [points.away, points.home].sort((a, b) => b - a)
+      );
+      assert.ok(!res.text.includes('POPS'));
+    } else {
+      cells.slice(1).forEach(c => assert.match(c, /^\d\.\d{3}$/));
+    }
   });
 
   it('finished the simulated match', () => {

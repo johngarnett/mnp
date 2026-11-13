@@ -67,7 +67,7 @@ function setup(options = {}) {
   writeJson(path.join(dataFolder, 'venues.json'), {
     [VENUE_KEY]: { key: VENUE_KEY, name: 'Test Venue', machines: VENUE_MACHINES }
   });
-  writeJson(path.join(dataFolder, TEST_SEASON, 'season.json'), {
+  writeJson(seasonFile(), {
     key: TEST_SEASON,
     teams: {},
     groups: {},
@@ -94,6 +94,26 @@ function setup(options = {}) {
     );
   }
   return dataFolder;
+}
+
+function seasonFile() {
+  return path.join(dataFolder, TEST_SEASON, 'season.json');
+}
+
+// Adds teams, groups and weeks to season.json after setup(), for a scenario
+// whose keys depend on modules that load only after setup() (the branding's
+// match key prefix). Must run before model/seasons is first loaded, since it
+// reads the file once.
+function addToSeason({ teams = {}, groups = {}, weeks = [] }) {
+  if (require.cache[require.resolve('../../model/seasons')]) {
+    throw new Error('addToSeason must run before model/seasons is loaded');
+  }
+  const season = JSON.parse(fs.readFileSync(seasonFile(), 'utf8'));
+
+  season.teams = { ...season.teams, ...teams };
+  season.groups = { ...season.groups, ...groups };
+  season.weeks = [...season.weeks, ...weeks];
+  writeJson(seasonFile(), season);
 }
 
 function createPlayer({ key, name, email = `${key}@example.com` }) {
@@ -141,6 +161,7 @@ module.exports = {
   sentEmails: require('./stub-email').sentEmails,
   STUB_EMAIL_PRELOAD: require.resolve('./stub-email'),
   setup,
+  addToSeason,
   createPlayer,
   login,
   createApp,
