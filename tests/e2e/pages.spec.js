@@ -31,6 +31,11 @@ test('a finished match shows its rounds, bonus and totals', async ({ page }) => 
 
   expect(headers.map(h => h.trim()).slice(1)).toEqual(expected.slice(1));
   await expect(page.locator('.round-line')).toContainText(`Round: ${format.regularRounds}`);
+
+  // The timing section ends with each team's pick/respond totals.
+  const totals = page.locator('.timing-totals');
+  await expect(totals).toBeVisible();
+  await expect(totals.locator('.timing-team')).toHaveCount(2);
 });
 
 test('the game page names the game type', async ({ page }) => {
